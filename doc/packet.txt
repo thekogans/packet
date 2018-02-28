@@ -1,0 +1,147 @@
+libthekogans_packet models a secure, packet based application transport
+protocol. One of the more novel implementation details is the key rotation
+strategy.
+
+Every [UDP | TCP]Tunnel starts off with a KeyRing containing a shared
+master key. Throughout the lifetime of the tunnel, the peers on both sides
+constantly negotiate, exchange and rotate keys. The design of the KeyRing
+allows every packet to be encrypted and signed using a different key. As keys
+become (over)used, they are dropped from the KeyRing and new ones take their
+place.
+
+The choice of shared keys means that libthekogans_packet is not suitable
+for certain applications, namely those that require PKI to establish trust.
+
+The design was motivated by the following goals:
+
+- use the best industry practices (as of 2016) to resist various known attacks.
+  - use of random length packet prefixes to resist known plaintext attacks.
+  - use of explicit packet initialization vectors to resist BEAST.
+  - encrypt then mac to resist POODLE.
+  - compression is off by default to resist CRIME.
+    NOTE: please make sure you know what you're doing before using compression.
+  - use the strongest known algorithms:
+    - [EC]DHE or RSA for key exchange.
+    - [EC]DSA or RSA for authentication.
+    - AES-[128 | 192 | 256]-[CBC | GCM] for symmetrict encryption/decryption.
+    - SHA2-[256 | 384 | 512] for mac.
+  - https://defuse.ca/cbcmodeiv.htm
+  - https://moxie.org/blog/the-cryptographic-doom-principle/
+  - http://www.iacr.org/archive/crypto2001/21390309.pdf
+  - http://www.educatedguesswork.org/2011/09/security_impact_of_the_rizzodu.html
+  - https://vnhacker.blogspot.com/2011/09/beast.html
+  - https://tools.ietf.org/html/rfc7457
+  - http://www.slideshare.net/danrlde/20120418-luedtke-ssltlscbcbeast
+- very little data is sent in the clear. specifically, no packet identifying
+  information is sent in the clear.
+- frame payload length is bound to allow for both udp and tcp transports and
+  to thwart ddos attacks.
+- unlimited (up to 4GB) packet length to support different application needs.
+  fragmentation and reassembly is done by the library.
+- support for both reliable (tcp) and unreliable (udp) transports.
+
+The following ASCII art describes the structure of frames on the wire.
+Each frame contains either a full packet or a packet fragment.
+
+all 2 byte fields are of type thekogans::util::ui16 and are stored in big endian format.
+all 4 byte fields are of type thekogans::util::ui32 and are stored in big endian format.
+
+|<----------------------frame----------------------->|
+|<-----------plaintext------------>|<--ciphertext--->|
++--------------+-------------------+-----------------+
+|              |                   |                 |
+| frame header | ciphertext header |     payload     |
+|              |                   |                 |
++--------------+-------------------+-----------------+
+|     fhs      |       cths        | variable length |
+
+|<----------frame header---------->|
++--------------+-------------------+
+|              |                   |
+|    key id    | ciphertext length |
+|              |                   |
++--------------+-------------------+
+|      32      |         4         |
+
+fhs = 36;
+
+|<------------ciphertext header------------->|
++-----------+-------------------+------------+
+|           |                   |            |
+| iv length | ciphertext length | mac length |
+|           |                   |            |
++-----------+-------------------+------------+
+|     2     |         4         |     2      |
+
+cths = 8
+
+|<----------------------payload----------------------->|
++-----------------+------------------+-----------------+
+|                 |                  |                 |
+|       iv        |    ciphertext    |       mac       |
+|                 |                  |                 |
++-----------------+------------------+-----------------+
+| variable length | variable length  | variable length |
+
+Once verified and decrypted, the ciphertext has the following structure:
+
+|<------------ciphertext------------>|
++------------------+-----------------+
+|                  |                 |
+| plaintext header |    plaintext    |
+|                  |                 |
++------------------+-----------------+
+|       pths       | variable length |
+
+|<--plaintext header-->|
++---------------+------+
+|               |      |
+| random length | type |
+|               |      |
++---------------+------+
+|       1       |  1   |
+
+pths = 2;
+
+if type == TYPE_PACKET_HEADER,
+
+|<--------------------plaintext-------------------->|
++-----------------+---------------+-----------------+
+|                 |               |                 |
+|   random data   | packet header |   packet data   |
+|                 |               |                 |
++-----------------+---------------+-----------------+
+| variable length |      phs      | variable length |
+
+|<--------------------------------packet header-------------------------------->|
++------------+-----------------+----+---------+-------+----------------+--------+
+|            |                 |    |         |       |                |        |
+| session id | sequence number | id | version | flags | fragment count | length |
+|            |                 |    |         |       |                |        |
++------------+-----------------+----+---------+-------+----------------+--------+
+|     16     |        4        | 2  |    2    |   2   |       2        |   4    |
+
+phs = 32;
+
+if type == TYPE_PACKET_FRAGMENT_HEADER,
+
+|<---------------------------plaintext--------------------------->|
++-----------------+------------------------+----------------------+
+|                 |                        |                      |
+|   random data   | packet fragment header | packet fragment data |
+|                 |                        |                      |
++-----------------+------------------------+----------------------+
+| variable length |          pfhs          |   variable length    |
+
+|<-------------------packet fragment header-------------------->|
++------------+-----------------+-------+-----------+------------+
+|            |                 |       |           |            |
+| session id | sequence number | flags |   index   |   offset   |
+|            |                 |       |           |            |
++------------+-----------------+-------+-----------+------------+
+|     16     |        4        |   2   |     2     |     4      |
+
+pfhs = 28;
+
+framing overhead for packet frames is: fhs + cths + pths + phs = 78 bytes + random data length
+framing overhead for packet fragment frames is: fhs + cths + pths + pfhs = 74 bytes + random data length

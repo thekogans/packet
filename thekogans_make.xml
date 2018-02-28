@@ -1,0 +1,39 @@
+<thekogans_make organization = "thekogans"
+                project = "packet"
+                project_type = "library"
+                major_version = "0"
+                minor_version = "1"
+                patch_version = "0"
+                guid = "fade51110e6a01aa70d4542c0a86a202"
+                schema_version = "2">
+  <dependencies>
+    <project organization = "thekogans"
+             name = "util"/>
+    <project organization = "thekogans"
+             name = "crypto"/>
+    <project organization = "thekogans"
+             name = "stream"/>
+    <toolchain organization = "thekogans"
+               name = "pugixml"/>
+  </dependencies>
+  <cpp_headers prefix = "include"
+               install = "yes">
+    <cpp_header>$(organization)/$(project_directory)/ErrorPacket.h</cpp_header>
+    <cpp_header>$(organization)/$(project_directory)/HeartbeatPacket.h</cpp_header>
+    <cpp_header>$(organization)/$(project_directory)/Packet.h</cpp_header>
+    <cpp_header>$(organization)/$(project_directory)/Packets.h</cpp_header>
+    <cpp_header>$(organization)/$(project_directory)/PacketFragmentHeader.h</cpp_header>
+    <cpp_header>$(organization)/$(project_directory)/PacketHeader.h</cpp_header>
+    <cpp_header>$(organization)/$(project_directory)/PlaintextHeader.h</cpp_header>
+    <cpp_header>$(organization)/$(project_directory)/TCPFrameParser.h</cpp_header>
+    <cpp_header>$(organization)/$(project_directory)/UDPFrameParser.h</cpp_header>
+  </cpp_headers>
+  <cpp_sources prefix = "src">
+    <cpp_source>ErrorPacket.cpp</cpp_source>
+    <cpp_source>HeartbeatPacket.cpp</cpp_source>
+    <cpp_source>Packet.cpp</cpp_source>
+    <cpp_source>Packets.cpp</cpp_source>
+    <cpp_source>TCPFrameParser.cpp</cpp_source>
+    <cpp_source>UDPFrameParser.cpp</cpp_source>
+  </cpp_sources>
+</thekogans_make>
