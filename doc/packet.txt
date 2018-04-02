@@ -145,3 +145,54 @@ pfhs = 28;
 
 framing overhead for packet frames is: fhs + cths + pths + phs = 78 bytes + random data length
 framing overhead for packet fragment frames is: fhs + cths + pths + pfhs = 74 bytes + random data length
+
+struct PacketHeader {
+    ui32 magic;
+    ui8 type;
+    GUID seesion;
+    ui32 sequenceNumber;
+    ui32 length;
+};
+
+type = 1 (plaintext)
+
+record
+
+type = 2 (ciphertext)
+
+struct FrameHeader {
+    ID keyId;
+    ui32 length;
+};
+struct CiphertextHeader {
+    ui8 ivLength;
+    ui16 ciphertextLength;
+    ui8 macLength;
+};
+ciphertext (iv, ciphertext, mac)
+
+after decrypting ciphertext:
+
+ui8 randomLength;
+random
+
+ui8 type;
+
+type = 1 (record)
+
+struct RecordHeader {
+    ui16 flags;
+    ui16 fragmentCount;
+    ui32 length;
+};
+
+type = 2 (fragment)
+
+struct FragmentHeader {
+    ui32 offset;
+    ui32 length;
+};
+
+record or fragment data
+
+once the record is assembled from fragments, the buffer contains a Serializable.
