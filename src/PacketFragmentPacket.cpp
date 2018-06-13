@@ -15,21 +15,29 @@
 // You should have received a copy of the GNU General Public License
 // along with libthekogans_packet. If not, see <http://www.gnu.org/licenses/>.
 
-#include "thekogans/packet/HeartbeatPacket.h"
+#include "thekogans/packet/PacketFragmentPacket.h"
+
+using namespace thekogans;
 
 namespace thekogans {
     namespace packet {
 
-        THEKOGANS_PACKET_IMPLEMENT_PACKET (HeartbeatPacket)
+        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE (
+            PacketFragmentPacket,
+            1,
+            util::SpinLock,
+            16,
+            util::DefaultAllocator::Global)
 
-        void HeartbeatPacket::Read (
-                const PacketHeader & /*packetHeader*/,
-                util::Buffer &buffer) {
-            buffer >> lastReceivedPacketTime >> currentTime;
+        void PacketFragmentPacket::Read (
+                const Header & /*header*/,
+                util::Serializer &serializer) {
+            buffer.reset (new util::Buffer (util::NetworkEndian));
+            serializer >> chunkNumber >> chunkCount >> *buffer;
         }
 
-        void HeartbeatPacket::Write (util::Buffer &buffer) const {
-            buffer << lastReceivedPacketTime << currentTime;
+        void PacketFragmentPacket::Write (util::Serializer &serializer) const {
+            serializer << chunkNumber << chunkCount << *buffer;
         }
 
     } // namespace packet

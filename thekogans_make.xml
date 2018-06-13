@@ -18,22 +18,25 @@
   </dependencies>
   <cpp_headers prefix = "include"
                install = "yes">
-    <cpp_header>$(organization)/$(project_directory)/ErrorPacket.h</cpp_header>
-    <cpp_header>$(organization)/$(project_directory)/HeartbeatPacket.h</cpp_header>
+    <cpp_header>$(organization)/$(project_directory)/ClientKeyExchangePacket.h</cpp_header>
+    <cpp_header>$(organization)/$(project_directory)/Config.h</cpp_header>
+    <cpp_header>$(organization)/$(project_directory)/FrameParser.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/Packet.h</cpp_header>
+    <cpp_header>$(organization)/$(project_directory)/PacketFragmentPacket.h</cpp_header>
+    <cpp_header>$(organization)/$(project_directory)/PacketParser.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/Packets.h</cpp_header>
-    <cpp_header>$(organization)/$(project_directory)/PacketFragmentHeader.h</cpp_header>
-    <cpp_header>$(organization)/$(project_directory)/PacketHeader.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/PlaintextHeader.h</cpp_header>
-    <cpp_header>$(organization)/$(project_directory)/TCPFrameParser.h</cpp_header>
-    <cpp_header>$(organization)/$(project_directory)/UDPFrameParser.h</cpp_header>
+    <cpp_header>$(organization)/$(project_directory)/ServerKeyExchangePacket.h</cpp_header>
+    <cpp_header>$(organization)/$(project_directory)/Session.h</cpp_header>
   </cpp_headers>
   <cpp_sources prefix = "src">
-    <cpp_source>ErrorPacket.cpp</cpp_source>
-    <cpp_source>HeartbeatPacket.cpp</cpp_source>
+    <cpp_source>ClientKeyExchangePacket.cpp</cpp_source>
+    <cpp_source>FrameParser.cpp</cpp_source>
     <cpp_source>Packet.cpp</cpp_source>
+    <cpp_source>PacketFragmentPacket.cpp</cpp_source>
+    <cpp_source>PacketParser.cpp</cpp_source>
     <cpp_source>Packets.cpp</cpp_source>
-    <cpp_source>TCPFrameParser.cpp</cpp_source>
-    <cpp_source>UDPFrameParser.cpp</cpp_source>
+    <cpp_source>ServerKeyExchangePacket.cpp</cpp_source>
+    <cpp_source>Session.cpp</cpp_source>
   </cpp_sources>
 </thekogans_make>

@@ -31,31 +31,29 @@ namespace thekogans {
         /// \brief
         /// PlaintextHeader serves two purposes. 1. It pads the \see{Packet} with random length
         /// data to make packet start identification difficult for would be attackers, and 2. It
-        /// identifies the type of payload (\see{PacketHeader} or \see{PacketFragmentHeader}).
+        /// provides flags used in \see{Packet} precessing.
 
         struct _LIB_THEKOGANS_PACKET_DECL PlaintextHeader {
             enum {
                 /// \brief
                 /// Every payload begins with a random length random sequence
-                /// to twart histogram analysis and known plaintext attacks.
+                /// to thwart histogram analysis and known plain-text attacks.
                 MAX_RANDOM_LENGTH = 100
             };
             /// \brief
             /// Random vector length.
             util::ui8 randomLength;
-            /// \enum
-            /// Payload type.
             enum {
                 /// \brief
-                /// \see{PacketHeader}
-                TYPE_PACKET_HEADER,
+                /// A \see{Session::Header} follows the random vector.
+                FLAGS_SESSION_HEADER = 1,
                 /// \brief
-                /// \see{PacketFragmentHeader}
-                TYPE_PACKET_FRAGMENT_HEADER
+                /// \see{Packet} payload is compressed.
+                FLAGS_COMPRESSED = 2
             };
             /// \brief
-            /// Payload type.
-            util::ui8 type;
+            /// \see{Packet} flags.
+            util::ui8 flags;
 
             enum {
                 /// \brief
@@ -68,16 +66,16 @@ namespace thekogans {
             /// ctor.
             PlaintextHeader () :
                 randomLength (0),
-                type (TYPE_PACKET_HEADER) {}
+                flags (0) {}
             /// \brief
             /// ctor.
             /// \param[in] randomLength_ Random vector length.
-            /// \param[in] type_ Payload type.
+            /// \param[in] flags_ Payload flags.
             PlaintextHeader (
                 util::ui8 randomLength_,
-                util::ui8 type_) :
+                util::ui8 flags_) :
                 randomLength (randomLength_),
-                type (type_) {}
+                flags (flags_) {}
         };
 
         /// \brief
@@ -90,7 +88,7 @@ namespace thekogans {
                 const PlaintextHeader &plaintextHeader) {
             serializer <<
                 plaintextHeader.randomLength <<
-                plaintextHeader.type;
+                plaintextHeader.flags;
             return serializer;
         }
 
@@ -104,7 +102,7 @@ namespace thekogans {
                 PlaintextHeader &plaintextHeader) {
             serializer >>
                 plaintextHeader.randomLength >>
-                plaintextHeader.type;
+                plaintextHeader.flags;
             return serializer;
         }
 

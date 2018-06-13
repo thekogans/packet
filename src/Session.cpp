@@ -15,30 +15,24 @@
 // You should have received a copy of the GNU General Public License
 // along with libthekogans_packet. If not, see <http://www.gnu.org/licenses/>.
 
-#if !defined (__thekogans_packet_Packets_h)
-#define __thekogans_packet_Packets_h
-
-#include "thekogans/packet/Config.h"
+#include "thekogans/packet/Session.h"
 
 namespace thekogans {
     namespace packet {
 
-        /// \struct Packets Packets.h thekogans/packet/Packets.h
-        ///
-        /// \brief
-        /// Packets exposes a StaticInit method to register all \see{Packet}s.
+        bool Session::VerifyInboundHeader (const Header &header) {
+            if (header.id == id && header.sequenceNumber == inboundSequenceNumber) {
+                ++inboundSequenceNumber;
+                return true;
+            }
+            return false;
+        }
 
-        struct _LIB_THEKOGANS_PACKET_DECL Packets {
-        #if defined (TOOLCHAIN_TYPE_Static)
-            /// \brief
-            /// Because the thekogans_packet library uses dynamic initialization, when
-            /// using it in static builds call this method to have the library explicitly
-            /// include all internal packet types.
-            static void StaticInit ();
-        #endif // defined (TOOLCHAIN_TYPE_Static)
-        };
+        void Session::Reset () {
+            id = util::GUID::FromRandom ();
+            inboundSequenceNumber = 0;
+            outboundSequenceNumber = 0;
+        }
 
     } // namespace packet
 } // namespace thekogans
-
-#endif // !defined (__thekogans_packet_Packets_h)

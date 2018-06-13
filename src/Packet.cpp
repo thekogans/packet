@@ -16,222 +16,93 @@
 // along with libthekogans_packet. If not, see <http://www.gnu.org/licenses/>.
 
 #include "thekogans/util/RandomSource.h"
-#include "thekogans/crypto/FrameHeader.h"
+#include "thekogans/util/Exception.h"
 #include "thekogans/packet/PlaintextHeader.h"
-#include "thekogans/packet/PacketFragmentHeader.h"
 #include "thekogans/packet/Packet.h"
 
 namespace thekogans {
     namespace packet {
 
-        Packet::Map &Packet::GetMap () {
-            static Map map;
-            return map;
-        }
-
-        bool Packet::CheckId (util::ui16 id) {
-            Map::iterator it = GetMap ().find (id);
-            return it != GetMap ().end ();
-        }
-
-        Packet::UniquePtr Packet::Get (util::Buffer &packetHeaderAndData) {
-            PacketHeader packetHeader;
-            packetHeaderAndData >> packetHeader;
-            return Get (packetHeader, packetHeaderAndData);
-        }
-
-        Packet::UniquePtr Packet::Get (
-                const PacketHeader &packetHeader,
-                util::Buffer &packetData) {
-            UniquePtr packet;
-            Map::iterator it = GetMap ().find (packetHeader.id);
-            if (it != GetMap ().end ()) {
-                if (packetHeader.IsCompressed ()) {
-                    util::Buffer::UniquePtr uncompressed = packetData.Inflate ();
-                    packet = it->second (packetHeader, *uncompressed);
-                }
-                else {
-                    packet = it->second (packetHeader, packetData);
-                }
-            }
-            else {
-                THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
-                    "Unable to locate handler for packet: "
-                    "id = %u, version = %u, fragment count = %u, length = %u.",
-                    packetHeader.id,
-                    packetHeader.version,
-                    packetHeader.fragmentCount,
-                    packetHeader.length);
-            }
-            return packet;
-        }
-
-        Packet::MapInitializer::MapInitializer (
-                util::ui16 id,
-                Factory factory) {
-            std::pair<Map::iterator, bool> result =
-                GetMap ().insert (Map::value_type (id, factory));
-            if (!result.second) {
-                THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
-                    "Packet with id: %u already registered.", id);
-            }
-        }
-
         namespace {
-            inline util::ui8 GetRandom (util::ui8 *random) {
+            inline util::ui8 GetRandomLength () {
                 util::ui8 randomLength;
                 do {
-                    randomLength = (util::ui8)util::GlobalRandomSource::Instance ().GetBytes (random,
-                        util::GlobalRandomSource::Instance ().Getui32 () % PlaintextHeader::MAX_RANDOM_LENGTH);
+                    randomLength = (util::ui8)(
+                        util::GlobalRandomSource::Instance ().Getui32 () %
+                        (PlaintextHeader::MAX_RANDOM_LENGTH + 1));
                 } while (randomLength == 0);
                 return randomLength;
             }
         }
 
-        void Packet::Serialize (
-                const util::GUID &sessionId,
-                util::ui32 sequenceNumber,
-                crypto::Cipher &cipher,
-                bool compress,
-                util::ui32 maxFrameDataLength,
-                std::vector<util::Buffer::UniquePtr> &frames) const {
-            util::Buffer packetData (util::NetworkEndian, GetSize ());
-            Write (packetData);
-            util::Buffer::UniquePtr compressed;
-            util::ui32 dataLength;
-            util::ui16 flags;
-            if (compress) {
-                compressed = packetData.Deflate ();
-                dataLength = compressed->GetDataAvailableForReading ();
-                flags = PacketHeader::FLAGS_COMPRESSED;
-            }
-            else {
-                dataLength = packetData.GetDataAvailableForReading ();
-                flags = 0;
-            }
-            util::ui16 fragmentCount = dataLength / maxFrameDataLength;
-            util::ui16 fragmentLength = dataLength % maxFrameDataLength;
-            if (fragmentLength == 0) {
-                fragmentLength = maxFrameDataLength;
-            }
-            else {
-                ++fragmentCount;
-            }
-            frames.resize (fragmentCount);
-            util::ui8 random[PlaintextHeader::MAX_RANDOM_LENGTH];
-            util::ui8 randomLength = GetRandom (random);
-            util::Buffer buffer (
-                util::NetworkEndian,
-                PlaintextHeader::SIZE + randomLength +
-                PacketHeader::SIZE + maxFrameDataLength);
-            buffer << PlaintextHeader (
-                randomLength,
-                PlaintextHeader::TYPE_PACKET_HEADER);
-            buffer.Write (random, randomLength);
-            buffer << PacketHeader (
-                sessionId,
-                sequenceNumber,
-                GetId (),
-                GetVersion (),
-                flags,
-                fragmentCount,
-                dataLength);
-            if (compress) {
-                compressed->AdvanceReadOffset (
-                    buffer.Write (
-                        compressed->GetReadPtr (),
-                        fragmentLength));
-            }
-            else {
-                packetData.AdvanceReadOffset (
-                    buffer.Write (
-                        packetData.GetReadPtr (),
-                        fragmentLength));
-            }
-            frames[0] = cipher.EncryptAndFrame (
-                buffer.GetReadPtr (),
-                buffer.GetDataAvailableForReading ());
-            util::ui16 index = 1;
-            for (util::ui32 offset = fragmentLength;
-                    index < fragmentCount; ++index, offset += maxFrameDataLength) {
-                randomLength = GetRandom (random);
-                buffer.writeOffset = 0;
-                buffer << PlaintextHeader (
-                    randomLength,
-                    PlaintextHeader::TYPE_PACKET_FRAGMENT_HEADER);
-                buffer.Write (random, randomLength);
-                buffer << PacketFragmentHeader (
-                    sessionId,
-                    sequenceNumber,
-                    0,
-                    index,
-                    offset);
-                if (compress) {
-                    compressed->AdvanceReadOffset (
-                        buffer.Write (
-                            compressed->GetReadPtr (),
-                            maxFrameDataLength));
-                }
-                else {
-                    packetData.AdvanceReadOffset (
-                        buffer.Write (
-                            packetData.GetReadPtr (),
-                            maxFrameDataLength));
-                }
-                frames[index] = cipher.EncryptAndFrame (
-                    buffer.GetReadPtr (),
-                    buffer.GetDataAvailableForReading ());
-            }
-        }
-
         util::Buffer::UniquePtr Packet::Serialize (
-                const util::GUID &sessionId,
-                util::ui32 sequenceNumber,
                 crypto::Cipher &cipher,
+                Session *session,
                 bool compress) const {
-            util::Buffer::UniquePtr compressed;
-            util::ui32 dataLength;
-            util::ui16 flags;
-            if (compress) {
-                util::Buffer buffer (util::NetworkEndian, GetSize ());
-                Write (buffer);
-                compressed = buffer.Deflate ();
-                dataLength = compressed->GetDataAvailableForReading ();
-                flags = PacketHeader::FLAGS_COMPRESSED;
-            }
-            else {
-                dataLength = GetSize ();
-                flags = 0;
-            }
-            util::ui8 random[PlaintextHeader::MAX_RANDOM_LENGTH];
-            util::ui8 randomLength = GetRandom (random);
-            util::Buffer buffer (
+            util::ui8 randomLength = GetRandomLength ();
+            util::Buffer plaintext (
                 util::NetworkEndian,
-                PlaintextHeader::SIZE + randomLength +
-                PacketHeader::SIZE + dataLength);
-            buffer << PlaintextHeader (
-                randomLength,
-                PlaintextHeader::TYPE_PACKET_HEADER);
-            buffer.Write (random, randomLength);
-            buffer << PacketHeader (
-                sessionId,
-                sequenceNumber,
-                GetId (),
-                GetVersion (),
-                flags,
-                1,
-                dataLength);
+                PlaintextHeader::SIZE +
+                randomLength +
+                (session != 0 ? Session::Header::SIZE : 0) +
+                Size (*this));
+            util::ui8 flags = 0;
+            if (session != 0) {
+                flags |= PlaintextHeader::FLAGS_SESSION_HEADER;
+            }
             if (compress) {
-                buffer.Write (
-                    compressed->GetReadPtr (),
-                    compressed->GetDataAvailableForReading ());
+                flags |= PlaintextHeader::FLAGS_COMPRESSED;
+            }
+            plaintext << PlaintextHeader (randomLength, flags);
+            plaintext.AdvanceWriteOffset (
+                util::GlobalRandomSource::Instance ().GetBytes (
+                    plaintext.GetWritePtr (),
+                    randomLength));
+            if (session != 0) {
+                plaintext << session->GetOutboundHeader ();
+            }
+            if (compress) {
+                plaintext += *Serialize ()->Deflate ();
             }
             else {
-                Write (buffer);
+                plaintext << *this;
             }
             return cipher.EncryptAndFrame (
-                buffer.GetReadPtr (),
-                buffer.GetDataAvailableForReading ());
+                plaintext.GetReadPtr (),
+                plaintext.GetDataAvailableForReading ());
+        }
+
+        Packet::Ptr Packet::Deserialize (
+                util::Buffer &ciphertext,
+                crypto::Cipher &cipher,
+                Session *session) {
+            util::Buffer::UniquePtr plaintext = cipher.Decrypt (
+                ciphertext.GetReadPtr (),
+                ciphertext.GetDataAvailableForReading ());
+            PlaintextHeader plaintextHeader;
+            *plaintext >> plaintextHeader;
+            plaintext->AdvanceReadOffset (plaintextHeader.randomLength);
+            if (plaintextHeader.flags & PlaintextHeader::FLAGS_SESSION_HEADER) {
+                Session::Header sessionHeader;
+                *plaintext >> sessionHeader;
+                if (session == 0) {
+                    THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
+                        "Unable to verify session (%s, " THEKOGANS_UTIL_UI64_FORMAT ").",
+                        sessionHeader.id.ToString ().c_str (),
+                        sessionHeader.sequenceNumber);
+
+                }
+                else if (!session->VerifyInboundHeader (sessionHeader)) {
+                    THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
+                        "Invalid session (%s, " THEKOGANS_UTIL_UI64_FORMAT "), possible replay attack.",
+                        sessionHeader.id.ToString ().c_str (),
+                        sessionHeader.sequenceNumber);
+                }
+            }
+            if (plaintextHeader.flags & PlaintextHeader::FLAGS_COMPRESSED) {
+                plaintext = plaintext->Inflate ();
+            }
+            return Deserialize (*plaintext);
         }
 
     } // namespace packet

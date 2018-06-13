@@ -16,8 +16,10 @@
 // along with libthekogans_packet. If not, see <http://www.gnu.org/licenses/>.
 
 #if defined (TOOLCHAIN_TYPE_Static)
-    #include "thekogans/packet/ErrorPacket.h"
-    #include "thekogans/packet/HeartbeatPacket.h"
+    #include "thekogans/packet/ClientKeyExchangePacket.h"
+    #include "thekogans/packet/ServerKeyExchangePacket.h"
+    #include "thekogans/packet/PacketFragmentPacket.h"
+    #include "thekogans/packet/Packets.h"
 #endif // defined (TOOLCHAIN_TYPE_Static)
 
 namespace thekogans {
@@ -25,8 +27,9 @@ namespace thekogans {
 
     #if defined (TOOLCHAIN_TYPE_Static)
         void Packets::StaticInit () {
-            ErrorPacket::StaticInit ();
-            HeartbeatPacket::StaticInit ();
+            ClientKeyExchangePacket::StaticInit ();
+            ServerKeyExchangePacket::StaticInit ();
+            PacketFragmentPacket::StaticInit ();
         }
     #endif // defined (TOOLCHAIN_TYPE_Static)
 
