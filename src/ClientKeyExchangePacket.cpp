@@ -30,11 +30,11 @@ namespace thekogans {
         void ClientKeyExchangePacket::Read (
                 const Header & /*header*/,
                 util::Serializer &serializer) {
-            serializer >> publicKey;
+            serializer >> cipherSuite >> params;
         }
 
         void ClientKeyExchangePacket::Write (util::Serializer &serializer) const {
-            serializer << *publicKey;
+            serializer << cipherSuite << *params;
         }
 
     } // namespace packet

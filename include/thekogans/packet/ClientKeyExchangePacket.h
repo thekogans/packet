@@ -18,10 +18,11 @@
 #if !defined (__thekogans_packet_ClientKeyExchangePacket_h)
 #define __thekogans_packet_ClientKeyExchangePacket_h
 
+#include <string>
 #include "thekogans/util/SpinLock.h"
+#include "thekogans/util/Serializable.h"
 #include "thekogans/util/Serializer.h"
-#include "thekogans/crypto/Params.h"
-#include "thekogans/crypto/AsymmetricKey.h"
+#include "thekogans/crypto/KeyExchange.h"
 #include "thekogans/packet/Config.h"
 #include "thekogans/packet/Packet.h"
 
@@ -32,28 +33,14 @@ namespace thekogans {
         ///
         /// \brief
         /// ClientKeyExchangePacket packets are used to initiate \see{crypto::SymmetricKey} exchange. Upon
-        /// receipt, the server uses the DH/EC params to create an ephemeral private/public key pair, and
-        /// uses the public key found in the packet to compute it's side of the shared secret. It then
-        /// packages it's public key in the \see{ServerKeyExchangePacket} packet and sends it back to the
-        /// client to complete the key exchange.
+        /// receipt, the server uses the enclosed \see{CipherSuite} and \see{KeyExchange::Params} to create
+        /// it's side of the shared secret. It then packages it's \see{KeyExchange::Params} in the
+        /// \see{ServerKeyExchangePacket} packet and sends it back to the client to complete the key exchange.
         ///
         /// The following example illustrates it's use:
         ///
         /// \code{.cpp}
         /// using namespace thekogans;
-        /// crypto::Params::Ptr params =
-        ///     crypto::EC::ParamsFromRFC5639Curve (
-        ///         crypto::EC::RFC5639_CURVE_512);
-        /// crypto::AsymmetricKey::Ptr privateKey = params->CreateKey ();
-        /// keyRing.AddKeyExchangeKey (privateKey);
-        /// util::LockGuard<util::SpinLock> guard (spinLock);
-        /// WriteBuffer (
-        ///     packet::ClientKeyExchangePacket (
-        ///         params,
-        ///         crypto::KeyExchange (privateKey).GetPublicKey (
-        ///             privateKey->GetId ())).Serialize (
-        ///                 *keyRing.GetRandomCipher (),
-        ///                 &session));
         /// \endcode
 
         struct _LIB_THEKOGANS_PACKET_DECL ClientKeyExchangePacket : public Packet {
@@ -62,21 +49,21 @@ namespace thekogans {
             THEKOGANS_UTIL_DECLARE_SERIALIZABLE (ClientKeyExchangePacket, util::SpinLock)
 
             /// \brief
-            /// DH/EC parameters used to generate the public key.
-            crypto::Params::Ptr params;
+            /// \see{CipherSuite} used to generate the \see{KeyExchange::Params}.
+            std::string cipherSuite;
             /// \brief
-            /// Client's DH/EC public key.
-            crypto::AsymmetricKey::Ptr publicKey;
+            /// \see{KeyExchange::Params} used for \see{SymmetricKey} exchange.
+            crypto::KeyExchange::Params::Ptr params;
 
             /// \brief
             /// ctor.
-            /// \param[in] params_ DH/EC parameters used to generate the public key.
-            /// \param[in] publicKey_ Client's DH/EC public key.
+            /// \param[in] cipherSuite_ \see{CipherSuite} used to generate the \see{KeyExchange::Params}.
+            /// \param[in] params_ \see{KeyExchange::Params} used for \see{SymmetricKey} exchange.
             ClientKeyExchangePacket (
-                crypto::Params::Ptr params_,
-                crypto::AsymmetricKey::Ptr publicKey_) :
-                params (params_),
-                publicKey (publicKey_) {}
+                const std::string &cipherSuite_,
+                crypto::KeyExchange::Params::Ptr params_) :
+                cipherSuite (cipherSuite_),
+                params (params_) {}
 
         protected:
             /// \brief
@@ -84,8 +71,8 @@ namespace thekogans {
             /// \return Serialized packet size.
             virtual std::size_t Size () const {
                 return
-                    util::Serializable::Size (*params) +
-                    util::Serializable::Size (*publicKey);
+                    util::Serializer::Size (cipherSuite) +
+                    util::Serializable::Size (*params);
             }
 
             /// \brief

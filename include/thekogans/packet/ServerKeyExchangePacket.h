@@ -18,13 +18,11 @@
 #if !defined (__thekogans_packet_ServerKeyExchangePacket_h)
 #define __thekogans_packet_ServerKeyExchangePacket_h
 
-#include "thekogans/util/Types.h"
+#include <string>
 #include "thekogans/util/SpinLock.h"
-#include "thekogans/util/Buffer.h"
+#include "thekogans/util/Serializable.h"
 #include "thekogans/util/Serializer.h"
-#include "thekogans/crypto/Params.h"
-#include "thekogans/crypto/AsymmetricKey.h"
-#include "thekogans/crypto/ID.h"
+#include "thekogans/crypto/KeyExchange.h"
 #include "thekogans/packet/Config.h"
 #include "thekogans/packet/Packet.h"
 #include "thekogans/packet/Session.h"
@@ -38,29 +36,13 @@ namespace thekogans {
         /// ServerKeyExchangePacket packets are used by the server to complete the \see{crypto::SymmetricKey}
         /// key exchange started by the client (using (see{ClientKeyExchangePacket}). After receiving the
         /// \see{ClientKeyExchangePacket} packet from the client, the server uses it's params to create it's
-        /// own private/public DH/EC key pair. It sends it's public key back to the client to complete the
-        /// key exchange.
+        /// \see{SymmetricKey}. It sends it's \see{KeyExchange::Params} public key back to the client to complete
+        /// the key exchange.
         ///
         /// The following example illustrates it's use:
         ///
         /// \code{.cpp}
         /// using namespace thekogans;
-        /// crypto::KeyExchange keyExchange (clientKeyExchange->params->CreateKey ());
-        /// keyRing.AddCipherKey (
-        ///     keyExchange.DeriveSharedSymmetricKey (
-        ///         clientKeyExchange->publicKey,
-        ///         0,
-        ///         0,
-        ///         crypto::GetCipherKeyLength (),
-        ///         THEKOGANS_CRYPTO_DEFAULT_MD,
-        ///         1,
-        ///         clientKeyExchange->publicKey->GetId ()));
-        /// WriteBuffer (
-        ///     packet::ServerKeyExchangePacket (
-        ///         keyExchange.GetPublicKey (
-        ///             clientKeyExchange->publicKey->GetId ())).Serialize (
-        ///                 *keyRing.GetRandomCipher (),
-        ///                &session));
         /// \endcode
 
         struct _LIB_THEKOGANS_PACKET_DECL ServerKeyExchangePacket : public Packet {
@@ -69,22 +51,30 @@ namespace thekogans {
             THEKOGANS_UTIL_DECLARE_SERIALIZABLE (ServerKeyExchangePacket, util::SpinLock)
 
             /// \brief
-            /// Server's DH/EC public key.
-            crypto::AsymmetricKey::Ptr publicKey;
+            /// \see{CipherSuite} used to generate the \see{KeyExchange::Params}.
+            std::string cipherSuite;
+            /// \brief
+            /// \see{KeyExchange::Params} used for \see{SymmetricKey} exchange.
+            crypto::KeyExchange::Params::Ptr params;
 
             /// \brief
             /// ctor.
-            /// \param[in] publicKey_ Server's DH/EC public key.
-            explicit ServerKeyExchangePacket (
-                crypto::AsymmetricKey::Ptr publicKey_) :
-                publicKey (publicKey_) {}
+            /// \param[in] cipherSuite_ \see{CipherSuite} used to generate the \see{KeyExchange::Params}.
+            /// \param[in] params_ \see{KeyExchange::Params} used for \see{SymmetricKey} exchange.
+            ServerKeyExchangePacket (
+                const std::string &cipherSuite_,
+                crypto::KeyExchange::Params::Ptr params_) :
+                cipherSuite (cipherSuite_),
+                params (params_) {}
 
         protected:
             /// \brief
             /// Return serialized packet size.
             /// \return Serialized packet size.
             virtual std::size_t Size () const {
-                return util::Serializable::Size (*publicKey);
+                return
+                    util::Serializer::Size (cipherSuite) +
+                    util::Serializable::Size (*params);
             }
 
             /// \brief
