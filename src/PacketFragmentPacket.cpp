@@ -32,8 +32,7 @@ namespace thekogans {
         void PacketFragmentPacket::Read (
                 const Header & /*header*/,
                 util::Serializer &serializer) {
-            buffer.reset (new util::Buffer (util::NetworkEndian));
-            serializer >> chunkNumber >> chunkCount >> *buffer;
+            serializer >> chunkNumber >> chunkCount >> buffer;
         }
 
         void PacketFragmentPacket::Write (util::Serializer &serializer) const {
