@@ -227,7 +227,7 @@ namespace thekogans {
             void Reset ();
 
             /// \brief
-            /// Try to parse an \see{crypto::FrameHeader::keyId} ot a
+            /// Try to parse an \see{crypto::FrameHeader::keyId} or a
             /// \see{crypto::FrameHeader::ciphertextLength} from the given buffer.
             /// \param[in] buffer Contains a complete or partial key id.
             /// \param[out] value Value to parse.
