@@ -43,62 +43,18 @@ namespace thekogans {
             } bufferEndiannessSetter (buffer, util::NetworkEndian);
             while (buffer.GetDataAvailableForReading () > 0) {
                 switch (state) {
-                    case STATE_HEADER_MAGIC: {
-                        if (ParseValue (buffer, header.magic)) {
-                            if (header.magic == util::MAGIC32) {
-                                state = STATE_HEADER_TYPE_LENGTH;
-                            }
-                            else {
-                                Reset ();
-                                THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
-                                    "Corrupt serializable header: %u.",
-                                    header.magic);
-                            }
-                        }
-                        break;
-                    }
-                    case STATE_HEADER_TYPE_LENGTH: {
-                        util::ui32 length = 0;
-                        if (ParseValue (buffer, length)) {
-                            if (length > 0 && length <= MAX_TYPE_LENGTH) {
-                                header.type.resize (length);
-                                state = STATE_HEADER_TYPE;
-                            }
-                            else {
-                                Reset ();
-                                THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
-                                    "Invalid type length: %u.",
-                                    length);
-                            }
-                        }
-                        break;
-                    }
-                    case STATE_HEADER_TYPE: {
-                        util::ui32 bytesAvailable = std::min (
-                            (util::ui32)header.type.size () - offset,
-                            buffer.GetDataAvailableForReading ());
-                        buffer.Read (&header.type[offset], bytesAvailable);
-                        offset += bytesAvailable;
-                        if (offset == header.type.size ()) {
-                            offset = 0;
-                            state = STATE_HEADER_VERSION;
-                        }
-                        break;
-                    }
-                    case STATE_HEADER_VERSION: {
-                        if (ParseValue (buffer, header.version)) {
-                            state = STATE_HEADER_SIZE;
-                        }
-                        break;
-                    }
-                    case STATE_HEADER_SIZE: {
-                        if (ParseValue (buffer, header.size)) {
+                    case STATE_HEADER: {
+                        if (headerParser.ParseValue (buffer)) {
                             if (header.size > 0 && header.size <= maxPacketSize) {
-                                state = STATE_PAYLOAD;
-                                payload.reset (
-                                    new util::Buffer (
-                                        util::NetworkEndian,
-                                        header.size));
+                                THEKOGANS_UTIL_TRY {
+                                    payload.Resize (header.size);
+                                    payload.Rewind ();
+                                    state = STATE_PAYLOAD;
+                                }
+                                THEKOGANS_UTIL_CATCH (util::Exception) {
+                                    Reset ();
+                                    THEKOGANS_UTIL_RETHROW_EXCEPTION (exception);
+                                }
                             }
                             else {
                                 Reset ();
@@ -110,14 +66,14 @@ namespace thekogans {
                         break;
                     }
                     case STATE_PAYLOAD: {
-                        payload->AdvanceWriteOffset (
+                        payload.AdvanceWriteOffset (
                             buffer.Read (
-                                payload->GetWritePtr (),
-                                payload->GetDataAvailableForWriting ()));
-                        if (payload->GetDataAvailableForWriting () == 0) {
+                                payload.GetWritePtr (),
+                                payload.GetDataAvailableForWriting ()));
+                        if (payload.IsFull ()) {
                             THEKOGANS_UTIL_TRY {
                                 packetHandler.HandlePacket (
-                                    Packet::Deserialize (header, *payload));
+                                    Packet::Deserialize (header, payload));
                                 Reset ();
                             }
                             THEKOGANS_UTIL_CATCH (util::Exception) {
@@ -132,9 +88,9 @@ namespace thekogans {
         }
 
         void PacketParser::Reset () {
-            state = STATE_HEADER_MAGIC;
-            payload.reset ();
-            offset = 0;
+            state = STATE_HEADER;
+            payload.Resize (0);
+            headerParser.Reset ();
         }
 
     } // namespace packet

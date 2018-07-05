@@ -19,12 +19,14 @@
 #define __thekogans_packet_FrameParser_h
 
 #include "thekogans/util/Types.h"
+#include "thekogans/util/Serializer.h"
 #include "thekogans/util/Buffer.h"
 #include "thekogans/crypto/ID.h"
 #include "thekogans/crypto/Cipher.h"
 #include "thekogans/packet/Config.h"
 #include "thekogans/packet/Session.h"
 #include "thekogans/packet/Packet.h"
+#include "thekogans/packet/ValueParser.h"
 
 namespace thekogans {
     namespace packet {
@@ -169,31 +171,25 @@ namespace thekogans {
             /// FrameParser is a state machine. These are it's various states.
             enum {
                 /// \brief
-                /// Next value to parse is the \see{crypto::FrameHeader::keyId}.
-                STATE_FRAME_HEADER_KEY_ID,
-                /// \brief
-                /// Next value to parse is the \see{crypto::FrameHeader::ciphertextLength}.
-                STATE_FRAME_HEADER_CIPHERTEXT_LENGTH,
+                /// Next value to parse is the \see{crypto::FrameHeader}.
+                STATE_FRAME_HEADER,
                 /// \brief
                 /// Next value to parse is the encrypted \see{Session::Header}
                 /// and \see{Packet}.
                 STATE_CIPHERTEXT
             } state;
             /// \brief
-            /// Incrementally parsed key id.
+            /// Incrementally parsed \see{crypto::FrameHeader}.
             crypto::FrameHeader frameHeader;
             /// \brief
             /// Incrementally parsed payload.
-            util::Buffer::UniquePtr ciphertext;
+            util::Buffer ciphertext;
             /// \brief
             /// \see{crypto::Cipher} corresponding to frameHeader.keyId.
             crypto::Cipher::Ptr cipher;
             /// \brief
-            /// Offset in to partialKeyId or partialCiphertextLength.
-            util::ui32 offset;
-            /// \brief
-            /// Partial \see{crypto::FrameHeader::keyId} value.
-            util::ui8 partialValue[crypto::ID::SIZE];
+            /// Parses \see{crypto::FrameHeader}.
+            ValueParser<crypto::FrameHeader> frameHeaderParser;
 
         public:
             /// \brief
@@ -202,8 +198,9 @@ namespace thekogans {
             FrameParser (
                 util::ui32 maxCiphertextLength_ = DEFAULT_MAX_CIPHERTEXT_LENGTH) :
                 maxCiphertextLength (maxCiphertextLength_),
-                state (STATE_FRAME_HEADER_KEY_ID),
-                offset (0) {}
+                state (STATE_FRAME_HEADER),
+                ciphertext (util::NetworkEndian),
+                frameHeaderParser (frameHeader) {}
 
             /// \brief
             /// Return the max ciphertext length allowed by this parser.
@@ -225,39 +222,6 @@ namespace thekogans {
             /// \brief
             /// Reset the parser to the initial state.
             void Reset ();
-
-            /// \brief
-            /// Try to parse an \see{crypto::FrameHeader::keyId} or a
-            /// \see{crypto::FrameHeader::ciphertextLength} from the given buffer.
-            /// \param[in] buffer Contains a complete or partial key id.
-            /// \param[out] value Value to parse.
-            /// \return true == value contains a parsed value.
-            template<typename T>
-            bool ParseValue (
-                    util::Buffer &buffer,
-                    T &value) {
-                util::ui32 bytesAvailable = std::min (
-                    (util::ui32)sizeof (value) - offset,
-                    buffer.GetDataAvailableForReading ());
-                if (offset + bytesAvailable == sizeof (value)) {
-                    if (offset != 0) {
-                        buffer.Read (&partialValue[offset], bytesAvailable);
-                        offset = 0;
-                        util::TenantReadBuffer valueBuffer (
-                            buffer.endianness,
-                            partialValue,
-                            sizeof (value));
-                        valueBuffer >> value;
-                    }
-                    else {
-                        buffer >> value;
-                    }
-                    return true;
-                }
-                buffer.Read (&partialValue[offset], bytesAvailable);
-                offset += bytesAvailable;
-                return false;
-            }
         };
 
     } // namespace packet

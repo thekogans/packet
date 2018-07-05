@@ -43,11 +43,28 @@ namespace thekogans {
             } bufferEndiannessSetter (buffer, util::NetworkEndian);
             while (buffer.GetDataAvailableForReading () > 0) {
                 switch (state) {
-                    case STATE_FRAME_HEADER_KEY_ID: {
-                        if (ParseValue (buffer, frameHeader.keyId)) {
+                    case STATE_FRAME_HEADER: {
+                        if (frameHeaderParser.ParseValue (buffer)) {
                             cipher = packetHandler.GetCipherForKeyId (frameHeader.keyId);
                             if (cipher.Get () != 0) {
-                                state = STATE_FRAME_HEADER_CIPHERTEXT_LENGTH;
+                                if (frameHeader.ciphertextLength > 0 &&
+                                        frameHeader.ciphertextLength <= maxCiphertextLength) {
+                                    THEKOGANS_UTIL_TRY {
+                                        ciphertext.Resize (frameHeader.ciphertextLength);
+                                        ciphertext.Rewind ();
+                                        state = STATE_CIPHERTEXT;
+                                    }
+                                    THEKOGANS_UTIL_CATCH (util::Exception) {
+                                        Reset ();
+                                        THEKOGANS_UTIL_RETHROW_EXCEPTION (exception);
+                                    }
+                                }
+                                else {
+                                    Reset ();
+                                    THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
+                                        "Invalid ciphertext length: %u.",
+                                        frameHeader.ciphertextLength);
+                                }
                             }
                             else {
                                 Reset ();
@@ -58,35 +75,16 @@ namespace thekogans {
                         }
                         break;
                     }
-                    case STATE_FRAME_HEADER_CIPHERTEXT_LENGTH: {
-                        if (ParseValue (buffer, frameHeader.ciphertextLength)) {
-                            if (frameHeader.ciphertextLength > 0 &&
-                                    frameHeader.ciphertextLength <= maxCiphertextLength) {
-                                state = STATE_CIPHERTEXT;
-                                ciphertext.reset (
-                                    new util::Buffer (
-                                        util::NetworkEndian,
-                                        frameHeader.ciphertextLength));
-                            }
-                            else {
-                                Reset ();
-                                THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
-                                    "Invalid ciphertext length: %u.",
-                                    frameHeader.ciphertextLength);
-                            }
-                        }
-                        break;
-                    }
                     case STATE_CIPHERTEXT: {
-                        ciphertext->AdvanceWriteOffset (
+                        ciphertext.AdvanceWriteOffset (
                             buffer.Read (
-                                ciphertext->GetWritePtr (),
-                                ciphertext->GetDataAvailableForWriting ()));
-                        if (ciphertext->GetDataAvailableForWriting () == 0) {
+                                ciphertext.GetWritePtr (),
+                                ciphertext.GetDataAvailableForWriting ()));
+                        if (ciphertext.IsFull ()) {
                             THEKOGANS_UTIL_TRY {
                                 packetHandler.HandlePacket (
                                     Packet::Deserialize (
-                                        *ciphertext,
+                                        ciphertext,
                                         *cipher,
                                         packetHandler.GetCurrentSession ()),
                                     cipher);
@@ -104,10 +102,10 @@ namespace thekogans {
         }
 
         void FrameParser::Reset () {
-            state = STATE_FRAME_HEADER_KEY_ID;
-            ciphertext.reset ();
+            state = STATE_FRAME_HEADER;
+            ciphertext.Resize (0);
             cipher.Reset ();
-            offset = 0;
+            frameHeaderParser.Reset ();
         }
 
     } // namespace packet

@@ -19,12 +19,14 @@
 #define __thekogans_packet_PacketParser_h
 
 #include "thekogans/util/Types.h"
+#include "thekogans/util/Serializer.h"
 #include "thekogans/util/Buffer.h"
 #include "thekogans/crypto/ID.h"
 #include "thekogans/crypto/Cipher.h"
 #include "thekogans/packet/Config.h"
 #include "thekogans/packet/Session.h"
 #include "thekogans/packet/Packet.h"
+#include "thekogans/packet/ValueParser.h"
 
 namespace thekogans {
     namespace packet {
@@ -86,20 +88,8 @@ namespace thekogans {
             /// PacketParser is a state machine. These are it's various states.
             enum {
                 /// \brief
-                /// Next value is \see{util::Serializable::Header::magic}.
-                STATE_HEADER_MAGIC,
-                /// \brief
-                /// Next value is \see{util::Serializable::Header::type} length.
-                STATE_HEADER_TYPE_LENGTH,
-                /// \brief
-                /// Next value is \see{util::Serializable::Header::type}.
-                STATE_HEADER_TYPE,
-                /// \brief
-                /// Next value is \see{util::Serializable::Header::version}.
-                STATE_HEADER_VERSION,
-                /// \brief
-                /// Next value is \see{util::Serializable::Header::size}.
-                STATE_HEADER_SIZE,
+                /// Next value is \see{util::Serializable::Header}.
+                STATE_HEADER,
                 /// \brief
                 /// Next value is packet payload.
                 STATE_PAYLOAD
@@ -109,13 +99,10 @@ namespace thekogans {
             util::Serializable::Header header;
             /// \brief
             /// Incrementally parsed payload.
-            util::Buffer::UniquePtr payload;
+            util::Buffer payload;
             /// \brief
-            /// Offset in to partialValue.
-            util::ui32 offset;
-            /// \brief
-            /// Partial \see{util::Serializable::Header} value.
-            util::ui8 partialValue[util::UI32_SIZE];
+            /// Parses \see{util::Serializable::Header}.
+            ValueParser<util::Serializable::Header> headerParser;
 
         public:
             /// \brief
@@ -124,8 +111,9 @@ namespace thekogans {
             PacketParser (
                 util::ui32 maxPacketSize_ = DEFAULT_MAX_PACKET_SIZE) :
                 maxPacketSize (maxPacketSize_),
-                state (STATE_HEADER_MAGIC),
-                offset (0) {}
+                state (STATE_HEADER),
+                payload (util::NetworkEndian),
+                headerParser (header) {}
 
             /// \brief
             /// Return the max ciphertext length allowed by this parser.
@@ -147,39 +135,6 @@ namespace thekogans {
             /// \brief
             /// Reset the parser to the initial state.
             void Reset ();
-
-            /// \brief
-            /// Try to parse a \see{util::Serializable::Header}
-            /// value from the given buffer.
-            /// \param[in] buffer Contains a complete or partial value.
-            /// \param[out] value Value to parse.
-            /// \return Value was successfully parsed.
-            template<typename T>
-            bool ParseValue (
-                    util::Buffer &buffer,
-                    T &value) {
-                util::ui32 bytesAvailable = std::min (
-                    (util::ui32)sizeof (value) - offset,
-                    buffer.GetDataAvailableForReading ());
-                if (offset + bytesAvailable == sizeof (value)) {
-                    if (offset != 0) {
-                        buffer.Read (&partialValue[offset], bytesAvailable);
-                        offset = 0;
-                        util::TenantReadBuffer valueBuffer (
-                            buffer.endianness,
-                            partialValue,
-                            sizeof (value));
-                        valueBuffer >> value;
-                    }
-                    else {
-                        buffer >> value;
-                    }
-                    return true;
-                }
-                buffer.Read (&partialValue[offset], bytesAvailable);
-                offset += bytesAvailable;
-                return false;
-            }
         };
 
     } // namespace packet

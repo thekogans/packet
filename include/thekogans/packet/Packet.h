@@ -33,7 +33,7 @@ namespace thekogans {
         ///
         /// \brief
         /// Packet extends \see{util::Serializable} to add application level
-        /// secure transport. Please consult \see{FrameParser} and \see{PacletParser}
+        /// secure transport. Please consult \see{FrameParser} and \see{PacketParser}
         /// to learn about Packet wire structure.
 
         struct _LIB_THEKOGANS_PACKET_DECL Packet : public util::Serializable {
