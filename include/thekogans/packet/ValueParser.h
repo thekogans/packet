@@ -31,8 +31,8 @@ namespace thekogans {
         /// \struct ValueParser ValueParser.h thekogans/packet/ValueParser.h
         ///
         /// \brief
-        /// ValueParser is template used to incrementally assemble values from stream
-        /// like \see{Serializer}.
+        /// ValueParser is a template used to incrementally assemble values from stream
+        /// like \see{Serializer}s.
 
         template<typename T>
         struct ValueParser {
@@ -41,8 +41,11 @@ namespace thekogans {
             /// Value to parse.
             T &value;
             /// \brief
+            /// Offset in to valueBuffer.
+            util::ui32 offset;
+            /// \brief
             /// Partial value.
-            util::Buffer valueBuffer;
+            util::ui8 valueBuffer[sizeof (T)];
 
         public:
             /// \brief
@@ -50,12 +53,12 @@ namespace thekogans {
             /// \param[out] value_ Value to parse.
             explicit ValueParser (T &value_) :
                 value (value_),
-                valueBuffer (util::HostEndian, util::Serializer::Size (value)) {}
+                offset (0) {}
 
             /// \brief
-            /// Rewind the valueBuffer to get it ready for the next value.
+            /// Rewind the offset to get it ready for the next value.
             inline void Reset () {
-                valueBuffer.Rewind ();
+                offset = 0;
             }
 
             /// \brief
@@ -63,14 +66,16 @@ namespace thekogans {
             /// \param[in] serializer Contains a complete or partial value.
             /// \return Value was successfully parsed.
             bool ParseValue (util::Serializer &serializer) {
-                valueBuffer.AdvanceWriteOffset (
-                    serializer.Read (
-                        valueBuffer.GetWritePtr (),
-                        valueBuffer.GetDataAvailableForWriting ()));
-                if (valueBuffer.IsFull ()) {
-                    valueBuffer.endianness = serializer.endianness;
-                    valueBuffer >> value;
+                offset += serializer.Read (
+                    valueBuffer + offset,
+                    sizeof (T) - offset);
+                if (offset == sizeof (T)) {
                     Reset ();
+                    util::TenantReadBuffer buffer (
+                        serializer.endianness,
+                        valueBuffer,
+                        sizeof (T));
+                    buffer >> value;
                     return true;
                 }
                 return false;

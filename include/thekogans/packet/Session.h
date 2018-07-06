@@ -31,7 +31,7 @@ namespace thekogans {
         /// \brief
         /// Session adds replay protection. If you pass a Session to
         /// \see{Packet::Serialize}, it will be encrypted with the
-        /// \see{Packet} payload. Since header ids are random
+        /// \see{Packet} payload. Since session ids are random
         /// \see{util::GUID}s, chances of any two matching are
         /// 1 in 2^128 (340,282,366,920,938,463,463,374,607,431,768,211,456).
 
