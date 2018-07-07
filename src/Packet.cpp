@@ -54,22 +54,28 @@ namespace thekogans {
                 flags |= PlaintextHeader::FLAGS_COMPRESSED;
             }
             plaintext << PlaintextHeader (randomLength, flags);
-            plaintext.AdvanceWriteOffset (
-                util::GlobalRandomSource::Instance ().GetBytes (
-                    plaintext.GetWritePtr (),
-                    randomLength));
-            if (session != 0) {
-                plaintext << session->GetOutboundHeader ();
-            }
-            if (compress) {
-                plaintext += *Serialize ()->Deflate ();
+            if (plaintext.AdvanceWriteOffset (
+                    util::GlobalRandomSource::Instance ().GetBytes (
+                        plaintext.GetWritePtr (),
+                        randomLength)) == randomLength) {
+                if (session != 0) {
+                    plaintext << session->GetOutboundHeader ();
+                }
+                if (compress) {
+                    plaintext += *Serialize ()->Deflate ();
+                }
+                else {
+                    plaintext << *this;
+                }
+                return cipher.EncryptAndFrame (
+                    plaintext.GetReadPtr (),
+                    plaintext.GetDataAvailableForReading ());
             }
             else {
-                plaintext << *this;
+                THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
+                    "Unable to get %u random bytes.",
+                    randomLength);
             }
-            return cipher.EncryptAndFrame (
-                plaintext.GetReadPtr (),
-                plaintext.GetDataAvailableForReading ());
         }
 
         Packet::Ptr Packet::Deserialize (

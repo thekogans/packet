@@ -32,7 +32,7 @@ namespace thekogans {
         ///
         /// \brief
         /// ValueParser is a template used to incrementally assemble values from stream
-        /// like \see{Serializer}s.
+        /// like \see{thekogans::util::Serializer}s.
 
         template<typename T>
         struct ValueParser {
@@ -103,7 +103,7 @@ namespace thekogans {
             /// Offset in to value where to write the next chunk.
             util::ui32 offset;
             /// \enum
-            /// \see{std::string} parser is a state machine. These are it's various states.
+            /// std::string parser is a state machine. These are it's various states.
             enum {
                 /// \brief
                 /// Next value is length.
@@ -173,7 +173,7 @@ namespace thekogans {
                 STATE_VERSION,
                 /// \brief
                 /// Next value is \see{util::Serializable::Header::size}.
-                STATE_SIZE,
+                STATE_SIZE
             } state;
 
         public:
@@ -193,8 +193,8 @@ namespace thekogans {
             void Reset ();
 
             /// \brief
-            /// Try to parse a std::string from the given buffer.
-            /// \param[in] buffer Contains a complete or partial std::string.
+            /// Try to parse a \see{util::Serializable::Header} from the given buffer.
+            /// \param[in] buffer Contains a complete or partial \see{util::Serializable::Header}.
             /// \return Value was successfully parsed.
             bool ParseValue (util::Serializer &serializer);
         };
@@ -224,7 +224,7 @@ namespace thekogans {
                 STATE_KEY_ID,
                 /// \brief
                 /// Next value to parse is the \see{crypto::FrameHeader::ciphertextLength}.
-                STATE_CIPHERTEXT_LENGTH,
+                STATE_CIPHERTEXT_LENGTH
             } state;
 
         public:
@@ -242,8 +242,8 @@ namespace thekogans {
             void Reset ();
 
             /// \brief
-            /// Try to parse a std::string from the given buffer.
-            /// \param[in] buffer Contains a complete or partial std::string.
+            /// Try to parse a \see{crypto::FrameHeader} from the given buffer.
+            /// \param[in] buffer Contains a complete or partial \see{crypto::FrameHeader}.
             /// \return Value was successfully parsed.
             bool ParseValue (util::Serializer &serializer);
         };
