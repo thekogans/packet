@@ -19,6 +19,7 @@
 #define __thekogans_packet_ValueParser_h
 
 #include "thekogans/util/Types.h"
+#include "thekogans/util/SizeT.h"
 #include "thekogans/util/Serializable.h"
 #include "thekogans/util/Serializer.h"
 #include "thekogans/util/Buffer.h"
@@ -42,7 +43,7 @@ namespace thekogans {
             T &value;
             /// \brief
             /// Offset in to valueBuffer.
-            util::ui32 offset;
+            std::size_t offset;
             /// \brief
             /// Partial value.
             util::ui8 valueBuffer[sizeof (T)];
@@ -64,22 +65,76 @@ namespace thekogans {
             /// \brief
             /// Try to parse a value from the given serializer.
             /// \param[in] serializer Contains a complete or partial value.
-            /// \return Value was successfully parsed.
+            /// \return true == Value was successfully parsed,
+            /// false == call back with more data.
             bool ParseValue (util::Serializer &serializer) {
                 offset += serializer.Read (
                     valueBuffer + offset,
                     sizeof (T) - offset);
                 if (offset == sizeof (T)) {
-                    Reset ();
                     util::TenantReadBuffer buffer (
                         serializer.endianness,
                         valueBuffer,
                         sizeof (T));
                     buffer >> value;
+                    Reset ();
                     return true;
                 }
                 return false;
             }
+        };
+
+        /// \struct ValueParser<util::SizeT> ValueParser.h thekogans/packet/ValueParser.h
+        ///
+        /// \brief
+        /// Specialization of ValueParser for \see{util::SizeT}.
+
+        template<>
+        struct ValueParser<util::SizeT> {
+        private:
+            /// \brief
+            /// Value to parse.
+            util::SizeT &value;
+            /// \brief
+            /// Size of serialized \see{util::SizeT}
+            std::size_t size;
+            /// \brief
+            /// Offset in to valueBuffer.
+            std::size_t offset;
+            /// \brief
+            /// Partial value.
+            util::ui8 valueBuffer[9];
+            /// \enum
+            /// util::SizeT parser is a state machine. These are it's various states.
+            enum {
+                /// \brief
+                /// Next value is the first byte.
+                STATE_SIZE,
+                /// \brief
+                /// Next value is value.
+                STATE_VALUE
+            } state;
+
+        public:
+            /// \brief
+            /// ctor.
+            /// \param[out] value_ Value to parse.
+            explicit ValueParser (util::SizeT &value_) :
+                value (value_),
+                size (0),
+                offset (0),
+                state (STATE_SIZE) {}
+
+            /// \brief
+            /// Rewind size and offset to get them ready for the next value.
+            void Reset ();
+
+            /// \brief
+            /// Try to parse a \see{util::SizeT} from the given serializer.
+            /// \param[in] serializer Contains a complete or partial value.
+            /// \return \see{util::SizeT} was successfully parsed,
+            /// false == call back with more data.
+            bool ParseValue (util::Serializer &serializer);
         };
 
         /// \struct ValueParser<std::string> ValueParser.h thekogans/packet/ValueParser.h
@@ -95,13 +150,13 @@ namespace thekogans {
             std::string &value;
             /// \brief
             /// String length.
-            util::ui32 length;
+            util::SizeT length;
             /// \brief
             /// String length parser.
-            ValueParser<util::ui32> lengthParser;
+            ValueParser<util::SizeT> lengthParser;
             /// \brief
             /// Offset in to value where to write the next chunk.
-            util::ui32 offset;
+            std::size_t offset;
             /// \enum
             /// std::string parser is a state machine. These are it's various states.
             enum {
@@ -131,7 +186,8 @@ namespace thekogans {
             /// \brief
             /// Try to parse a std::string from the given buffer.
             /// \param[in] buffer Contains a complete or partial std::string.
-            /// \return Value was successfully parsed.
+            /// \return true == std::string was successfully parsed,
+            /// false == call back with more data.
             bool ParseValue (util::Serializer &serializer);
         };
 
@@ -157,7 +213,7 @@ namespace thekogans {
             ValueParser<util::ui16> versionParser;
             /// \brief
             /// Parses \see{util::Serializable::Header::size}.
-            ValueParser<util::ui32> sizeParser;
+            ValueParser<util::SizeT> sizeParser;
             /// \enum
             /// \see{util::Serializable::Header} parser is a state machine.
             /// These are it's various states.
@@ -195,7 +251,8 @@ namespace thekogans {
             /// \brief
             /// Try to parse a \see{util::Serializable::Header} from the given buffer.
             /// \param[in] buffer Contains a complete or partial \see{util::Serializable::Header}.
-            /// \return Value was successfully parsed.
+            /// \return true == \see{util::Serializable::Header} was successfully parsed,
+            /// false == call back with more data.
             bool ParseValue (util::Serializer &serializer);
         };
 
@@ -244,7 +301,8 @@ namespace thekogans {
             /// \brief
             /// Try to parse a \see{crypto::FrameHeader} from the given buffer.
             /// \param[in] buffer Contains a complete or partial \see{crypto::FrameHeader}.
-            /// \return Value was successfully parsed.
+            /// \return true == \see{crypto::FrameHeader} was successfully parsed,
+            /// false == call back with more data.
             bool ParseValue (util::Serializer &serializer);
         };
 

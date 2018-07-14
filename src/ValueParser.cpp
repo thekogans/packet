@@ -20,6 +20,43 @@
 namespace thekogans {
     namespace packet {
 
+        void ValueParser<util::SizeT>::Reset () {
+            size = 0;
+            offset = 0;
+            state = STATE_SIZE;
+        }
+
+        bool ValueParser<util::SizeT>::ParseValue (util::Serializer &serializer) {
+            if (state == STATE_SIZE) {
+                util::ui8 firstByte;
+                if (serializer.Read (&firstByte, 1) == 1) {
+                    size = util::SizeT::Size (firstByte);
+                    if (size == 1) {
+                        value = firstByte >> 1;
+                        return true;
+                    }
+                    offset = 1;
+                    valueBuffer[0] = firstByte;
+                    state = STATE_VALUE;
+                }
+            }
+            if (state == STATE_VALUE) {
+                offset += serializer.Read (
+                    valueBuffer + offset,
+                    size - offset);
+                if (offset == size) {
+                    state = STATE_SIZE;
+                    util::TenantReadBuffer buffer (
+                        serializer.endianness,
+                        valueBuffer,
+                        size);
+                    buffer >> value;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         void ValueParser<std::string>::Reset () {
             length = 0;
             lengthParser.Reset ();
@@ -39,7 +76,7 @@ namespace thekogans {
                 }
             }
             if (state == STATE_STRING) {
-                offset += serializer.Read (&value[offset], (util::ui32)(value.size () - offset));
+                offset += serializer.Read (&value[offset], value.size () - offset);
                 if (offset == value.size ()) {
                     state = STATE_LENGTH;
                     return true;

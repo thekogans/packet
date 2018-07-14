@@ -83,7 +83,7 @@ namespace thekogans {
             };
             /// \brief
             /// Max ciphertext length allows us to protect ourselves from malicious actors.
-            const util::ui32 maxPacketSize;
+            const std::size_t maxPacketSize;
             /// \enum
             /// PacketParser is a state machine. These are it's various states.
             enum {
@@ -109,7 +109,7 @@ namespace thekogans {
             /// ctor.
             /// \param[in] maxPacketSize_ Max packet size.
             PacketParser (
-                util::ui32 maxPacketSize_ = DEFAULT_MAX_PACKET_SIZE) :
+                std::size_t maxPacketSize_ = DEFAULT_MAX_PACKET_SIZE) :
                 maxPacketSize (maxPacketSize_),
                 state (STATE_HEADER),
                 payload (util::NetworkEndian),
@@ -118,7 +118,7 @@ namespace thekogans {
             /// \brief
             /// Return the max ciphertext length allowed by this parser.
             /// \return Max ciphertext length allowed by this parser.
-            inline util::ui32 GetMaxPacketSize () const {
+            inline std::size_t GetMaxPacketSize () const {
                 return maxPacketSize;
             }
 

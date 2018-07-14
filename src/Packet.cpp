@@ -45,7 +45,7 @@ namespace thekogans {
                 PlaintextHeader::SIZE +
                 randomLength +
                 (session != 0 ? Session::Header::SIZE : 0) +
-                (util::ui32)Size (*this));
+                Size (*this));
             util::ui8 flags = 0;
             if (session != 0) {
                 flags |= PlaintextHeader::FLAGS_SESSION_HEADER;

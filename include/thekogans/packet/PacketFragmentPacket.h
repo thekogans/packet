@@ -19,6 +19,7 @@
 #define __thekogans_packet_PacketFragmentPacket_h
 
 #include "thekogans/util/Types.h"
+#include "thekogans/util/SizeT.h"
 #include "thekogans/util/SpinLock.h"
 #include "thekogans/util/Buffer.h"
 #include "thekogans/util/Serializer.h"
@@ -41,10 +42,10 @@ namespace thekogans {
 
             /// \brief
             /// \see{Packet} chunk number.
-            util::ui32 chunkNumber;
+            util::SizeT chunkNumber;
             /// \brief
             /// Total \see{Packet} chunk count.
-            util::ui32 chunkCount;
+            util::SizeT chunkCount;
             /// \brief
             /// \see{Packet} chunk.
             util::Buffer::UniquePtr buffer;
@@ -55,8 +56,8 @@ namespace thekogans {
             /// \param[in] chunkCount_ Total \see{Packet} chunk count.
             /// \param[in] buffer_ \see{Packet} chunk.
             PacketFragmentPacket (
-                util::ui32 chunkNumber_,
-                util::ui32 chunkCount_,
+                std::size_t chunkNumber_,
+                std::size_t chunkCount_,
                 util::Buffer::UniquePtr buffer_) :
                 chunkNumber (chunkNumber_),
                 chunkCount (chunkCount_),

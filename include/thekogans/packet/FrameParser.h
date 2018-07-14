@@ -117,13 +117,13 @@ namespace thekogans {
         /// +---------------+-----------------+
         /// |      phs      | variable length |
         ///
-        /// |<--------------packet header------------->|
-        /// +-------+-----------------+---------+------+
-        /// |       |                 |         |      |
-        /// | magic |       id        | version | size |
-        /// |       |                 |         |      |
-        /// +-------+-----------------+---------+------+
-        /// |   4   | variable length |    2    |  4   |
+        /// |<-------------------packet header------------------->|
+        /// +-------+-----------------+---------+-----------------+
+        /// |       |                 |         |                 |
+        /// | magic |       id        | version |      size       |
+        /// |       |                 |         |                 |
+        /// +-------+-----------------+---------+-----------------+
+        /// |   4   | variable length |    2    | variable length |
         ///
         /// phs = 10 + id size
 
@@ -166,7 +166,7 @@ namespace thekogans {
             };
             /// \brief
             /// Max ciphertext length allows us to protect ourselves from malicious actors.
-            const util::ui32 maxCiphertextLength;
+            const std::size_t maxCiphertextLength;
             /// \enum
             /// FrameParser is a state machine. These are it's various states.
             enum {
@@ -196,7 +196,7 @@ namespace thekogans {
             /// ctor.
             /// \param[in] maxCiphertextLength_ Max ciphertext length.
             FrameParser (
-                util::ui32 maxCiphertextLength_ = DEFAULT_MAX_CIPHERTEXT_LENGTH) :
+                std::size_t maxCiphertextLength_ = DEFAULT_MAX_CIPHERTEXT_LENGTH) :
                 maxCiphertextLength (maxCiphertextLength_),
                 state (STATE_FRAME_HEADER),
                 ciphertext (util::NetworkEndian),
@@ -205,7 +205,7 @@ namespace thekogans {
             /// \brief
             /// Return the max ciphertext length allowed by this parser.
             /// \return Max ciphertext length allowed by this parser.
-            inline util::ui32 GetMaxCiphertextLength () const {
+            inline std::size_t GetMaxCiphertextLength () const {
                 return maxCiphertextLength;
             }
 
