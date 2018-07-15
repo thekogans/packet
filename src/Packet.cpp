@@ -35,7 +35,7 @@ namespace thekogans {
             }
         }
 
-        util::Buffer::UniquePtr Packet::Serialize (
+        util::Buffer Packet::Serialize (
                 crypto::Cipher &cipher,
                 Session *session,
                 bool compress) const {
@@ -62,7 +62,7 @@ namespace thekogans {
                     plaintext << session->GetOutboundHeader ();
                 }
                 if (compress) {
-                    plaintext += *Serialize ()->Deflate ();
+                    plaintext += Serialize ().Deflate ();
                 }
                 else {
                     plaintext << *this;
@@ -82,15 +82,15 @@ namespace thekogans {
                 util::Buffer &ciphertext,
                 crypto::Cipher &cipher,
                 Session *session) {
-            util::Buffer::UniquePtr plaintext = cipher.Decrypt (
+            util::Buffer plaintext = cipher.Decrypt (
                 ciphertext.GetReadPtr (),
                 ciphertext.GetDataAvailableForReading ());
             PlaintextHeader plaintextHeader;
-            *plaintext >> plaintextHeader;
-            plaintext->AdvanceReadOffset (plaintextHeader.randomLength);
+            plaintext >> plaintextHeader;
+            plaintext.AdvanceReadOffset (plaintextHeader.randomLength);
             if (plaintextHeader.flags & PlaintextHeader::FLAGS_SESSION_HEADER) {
                 Session::Header sessionHeader;
-                *plaintext >> sessionHeader;
+                plaintext >> sessionHeader;
                 if (session == 0) {
                     THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
                         "Unable to verify session (%s, " THEKOGANS_UTIL_UI64_FORMAT ").",
@@ -106,9 +106,9 @@ namespace thekogans {
                 }
             }
             if (plaintextHeader.flags & PlaintextHeader::FLAGS_COMPRESSED) {
-                plaintext = plaintext->Inflate ();
+                plaintext = plaintext.Inflate ();
             }
-            return Deserialize (*plaintext);
+            return Deserialize (plaintext);
         }
 
     } // namespace packet

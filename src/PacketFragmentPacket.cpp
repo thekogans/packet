@@ -36,7 +36,7 @@ namespace thekogans {
         }
 
         void PacketFragmentPacket::Write (util::Serializer &serializer) const {
-            serializer << chunkNumber << chunkCount << *buffer;
+            serializer << chunkNumber << chunkCount << buffer;
         }
 
     } // namespace packet

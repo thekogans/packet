@@ -48,7 +48,7 @@ namespace thekogans {
             util::SizeT chunkCount;
             /// \brief
             /// \see{Packet} chunk.
-            util::Buffer::UniquePtr buffer;
+            util::Buffer buffer;
 
             /// \brief
             /// ctor.
@@ -58,7 +58,7 @@ namespace thekogans {
             PacketFragmentPacket (
                 std::size_t chunkNumber_,
                 std::size_t chunkCount_,
-                util::Buffer::UniquePtr buffer_) :
+                util::Buffer buffer_) :
                 chunkNumber (chunkNumber_),
                 chunkCount (chunkCount_),
                 buffer (std::move (buffer_)) {}
@@ -71,7 +71,7 @@ namespace thekogans {
                 return
                     util::Serializer::Size (chunkNumber) +
                     util::Serializer::Size (chunkCount) +
-                    util::Serializer::Size (*buffer);
+                    util::Serializer::Size (buffer);
             }
 
             /// \brief

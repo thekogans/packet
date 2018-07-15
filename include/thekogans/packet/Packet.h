@@ -44,7 +44,7 @@ namespace thekogans {
             /// \brief
             /// Exposes \see{util::Serializable::Serialize}.
             /// \return \see{util::Buffer} containing the serialized packet.
-            inline util::Buffer::UniquePtr Serialize () const {
+            inline util::Buffer Serialize () const {
                 return util::Serializable::Serialize ();
             }
             /// \brief
@@ -54,7 +54,7 @@ namespace thekogans {
             /// \param[in] session Optional \see{Session} whose header will be baked in
             /// to the serialized packet to help prevent replay attacks.
             /// \param[in] compress true == Compress the packet contents before encrypting.
-            util::Buffer::UniquePtr Serialize (
+            util::Buffer Serialize (
                 crypto::Cipher &cipher,
                 Session *session,
                 bool compress = false) const;
