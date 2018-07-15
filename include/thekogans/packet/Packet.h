@@ -97,12 +97,14 @@ namespace thekogans {
             /// Return the maximum framing overhead needed by Serialize above.
             /// \param[in] type \see{Packet} type being framed.
             /// \return Maximum framing overhead needed by Serialize above.
-            static std::size_t GetMaxFramingOverhead (const char *type) {
+            static std::size_t GetMaxFramingOverhead (
+                    const char *type,
+                    std::size_t maxPacketSize) {
                 return crypto::Cipher::MAX_FRAMING_OVERHEAD_LENGTH +
                     PlaintextHeader::SIZE +
                     PlaintextHeader::MAX_RANDOM_LENGTH +
                     Session::Header::SIZE +
-                    util::Serializable::HeaderSize (type);
+                    util::Serializable::Header (type, 0, maxPacketSize).Size ();
             }
         };
 
