@@ -25,7 +25,7 @@ namespace thekogans {
     namespace packet {
 
         void PacketParser::HandleBuffer (
-                util::Buffer &buffer,
+                util::Buffer buffer,
                 PacketHandler &packetHandler) {
             struct BufferEndiannessSetter {
                 util::Buffer &buffer;
@@ -41,7 +41,7 @@ namespace thekogans {
                     std::swap (buffer.endianness, endianness);
                 }
             } bufferEndiannessSetter (buffer, util::NetworkEndian);
-            while (buffer.GetDataAvailableForReading () > 0) {
+            while (!buffer.IsEmpty ()) {
                 switch (state) {
                     case STATE_HEADER: {
                         if (headerParser.ParseValue (buffer)) {

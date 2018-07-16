@@ -46,15 +46,15 @@ namespace thekogans {
         /// +---------------+-----------------+
         /// |      phs      | variable length |
         ///
-        /// |<--------------packet header------------->|
-        /// +-------+-----------------+---------+------+
-        /// |       |                 |         |      |
-        /// | magic |       id        | version | size |
-        /// |       |                 |         |      |
-        /// +-------+-----------------+---------+------+
-        /// |   4   | variable length |    2    |  4   |
+        /// |<-------------------packet header------------------->|
+        /// +-------+-----------------+---------+-----------------+
+        /// |       |                 |         |                 |
+        /// | magic |       id        | version |      size       |
+        /// |       |                 |         |                 |
+        /// +-------+-----------------+---------+-----------------+
+        /// |   4   | variable length |    2    | variable length |
         ///
-        /// phs = 10 + id size
+        /// phs = 6 + id size + size size
 
         struct _LIB_THEKOGANS_PACKET_DECL PacketParser {
             /// \struct PacketParser::PacketHandler PacketParser.h thekogans/packet/PacketParser.h
@@ -128,7 +128,7 @@ namespace thekogans {
             /// \param[out] packetHandler PacketHandler api is used to
             /// process incoming packets.
             void HandleBuffer (
-                util::Buffer &buffer,
+                util::Buffer buffer,
                 PacketHandler &packetHandler);
 
         private:

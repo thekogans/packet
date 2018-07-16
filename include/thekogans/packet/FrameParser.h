@@ -75,7 +75,7 @@ namespace thekogans {
         /// +-----------------+------------------+-----------------+
         /// | variable length | variable length  | variable length |
         ///
-        /// Once verified and decrypted, the payload has the following plaintext structure:
+        /// Once verified and decrypted, ciphertext has the following plaintext structure:
         ///
         /// |<------------------------------plaintext------------------------------>|
         /// +------------------+-----------------+----------------+-----------------+
@@ -85,7 +85,7 @@ namespace thekogans {
         /// +------------------+-----------------+----------------+-----------------+
         /// |       pths       | variable length |      shs       | variable length |
         ///
-        /// |<---plaintext header-->|
+        /// |<--plaintext header--->|
         /// +---------------+-------+
         /// |               |       |
         /// | random length | flags |
@@ -125,7 +125,7 @@ namespace thekogans {
         /// +-------+-----------------+---------+-----------------+
         /// |   4   | variable length |    2    | variable length |
         ///
-        /// phs = 10 + id size
+        /// phs = 6 + id size + size size
 
         struct _LIB_THEKOGANS_PACKET_DECL FrameParser {
             /// \struct FrameParser::PacketHandler FrameParser.h thekogans/packet/FrameParser.h
@@ -215,7 +215,7 @@ namespace thekogans {
             /// \param[out] packetHandler PacketHandler api is used to
             /// process incoming packets.
             void HandleBuffer (
-                util::Buffer &buffer,
+                util::Buffer buffer,
                 PacketHandler &packetHandler);
 
         private:

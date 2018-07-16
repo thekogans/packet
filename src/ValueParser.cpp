@@ -41,15 +41,10 @@ namespace thekogans {
                 }
             }
             if (state == STATE_VALUE) {
-                offset += serializer.Read (
-                    valueBuffer + offset,
-                    size - offset);
+                offset += serializer.Read (valueBuffer + offset, size - offset);
                 if (offset == size) {
                     state = STATE_SIZE;
-                    util::TenantReadBuffer buffer (
-                        serializer.endianness,
-                        valueBuffer,
-                        size);
+                    util::TenantReadBuffer buffer (serializer.endianness, valueBuffer, size);
                     buffer >> value;
                     return true;
                 }
@@ -76,8 +71,8 @@ namespace thekogans {
                 }
             }
             if (state == STATE_STRING) {
-                offset += serializer.Read (&value[offset], value.size () - offset);
-                if (offset == value.size ()) {
+                offset += serializer.Read (&value[offset], length - offset);
+                if (offset == length) {
                     state = STATE_LENGTH;
                     return true;
                 }

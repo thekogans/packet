@@ -45,6 +45,7 @@ Each frame contains either a full packet or a packet fragment.
 
 all 2 byte fields are of type thekogans::util::ui16 and are stored in big endian format.
 all 4 byte fields are of type thekogans::util::ui32 and are stored in big endian format.
+all 8 byte fields are of type thekogans::util::ui64 and are stored in big endian format.
 
 |<----------------------frame----------------------->|
 |<-----------plaintext------------>|<--ciphertext--->|
@@ -53,15 +54,15 @@ all 4 byte fields are of type thekogans::util::ui32 and are stored in big endian
 | frame header | ciphertext header |     payload     |
 |              |                   |                 |
 +--------------+-------------------+-----------------+
-|     fhs      |       cths        | variable length |
+|     fhs      |        chs        | variable length |
 
-|<----------frame header---------->|
-+--------------+-------------------+
-|              |                   |
-|    key id    | ciphertext length |
-|              |                   |
-+--------------+-------------------+
-|      32      |         4         |
+|<-------frame header------->|
++--------+-------------------+
+|        |                   |
+| key id | ciphertext length |
+|        |                   |
++--------+-------------------+
+|   32   |         4         |
 
 fhs = 36;
 
@@ -73,9 +74,9 @@ fhs = 36;
 +-----------+-------------------+------------+
 |     2     |         4         |     2      |
 
-cths = 8
+chs = 8
 
-|<----------------------payload----------------------->|
+|<-----------------------payload---------------------->|
 +-----------------+------------------+-----------------+
 |                 |                  |                 |
 |       iv        |    ciphertext    |       mac       |
@@ -83,116 +84,54 @@ cths = 8
 +-----------------+------------------+-----------------+
 | variable length | variable length  | variable length |
 
-Once verified and decrypted, the ciphertext has the following structure:
+Once verified and decrypted, ciphertext has the following plaintext structure:
 
-|<------------ciphertext------------>|
-+------------------+-----------------+
-|                  |                 |
-| plaintext header |    plaintext    |
-|                  |                 |
-+------------------+-----------------+
-|       pths       | variable length |
+|<------------------------------plaintext------------------------------>|
++------------------+-----------------+----------------+-----------------+
+|                  |                 |                |                 |
+| plaintext header |   random data   | session header |     packet      |
+|                  |                 |                |                 |
++------------------+-----------------+----------------+-----------------+
+|       pths       | variable length |      shs       | variable length |
 
-|<--plaintext header-->|
-+---------------+------+
-|               |      |
-| random length | type |
-|               |      |
-+---------------+------+
-|       1       |  1   |
+|<--plaintext header--->|
++---------------+-------+
+|               |       |
+| random length | flags |
+|               |       |
++---------------+-------+
+|       1       |   1   |
 
-pths = 2;
+pths = 2
 
-if type == TYPE_PACKET_HEADER,
+if PlaintextHeader::flags contains FLAGS_SESSION_HEADER, Session::Header will follow.
 
-|<--------------------plaintext-------------------->|
-+-----------------+---------------+-----------------+
-|                 |               |                 |
-|   random data   | packet header |   packet data   |
-|                 |               |                 |
-+-----------------+---------------+-----------------+
-| variable length |      phs      | variable length |
+|<-------session header------->|
++------------+-----------------+
+|            |                 |
+| session id | sequence number |
+|            |                 |
++------------+-----------------+
+|     16     |        8        |
 
-|<--------------------------------packet header-------------------------------->|
-+------------+-----------------+----+---------+-------+----------------+--------+
-|            |                 |    |         |       |                |        |
-| session id | sequence number | id | version | flags | fragment count | length |
-|            |                 |    |         |       |                |        |
-+------------+-----------------+----+---------+-------+----------------+--------+
-|     16     |        4        | 2  |    2    |   2   |       2        |   4    |
+shs = 24
 
-phs = 32;
+if PlaintextHeader::flags contains FLAGS_COMPRESSED, the packet is inflated.
 
-if type == TYPE_PACKET_FRAGMENT_HEADER,
+|<------------packet------------->|
++---------------+-----------------+
+|               |                 |
+| packet header |   packet data   |
+|               |                 |
++---------------+-----------------+
+|      phs      | variable length |
 
-|<---------------------------plaintext--------------------------->|
-+-----------------+------------------------+----------------------+
-|                 |                        |                      |
-|   random data   | packet fragment header | packet fragment data |
-|                 |                        |                      |
-+-----------------+------------------------+----------------------+
-| variable length |          pfhs          |   variable length    |
+|<-------------------packet header------------------->|
++-------+-----------------+---------+-----------------+
+|       |                 |         |                 |
+| magic |       id        | version |      size       |
+|       |                 |         |                 |
++-------+-----------------+---------+-----------------+
+|   4   | variable length |    2    | variable length |
 
-|<-------------------packet fragment header-------------------->|
-+------------+-----------------+-------+-----------+------------+
-|            |                 |       |           |            |
-| session id | sequence number | flags |   index   |   offset   |
-|            |                 |       |           |            |
-+------------+-----------------+-------+-----------+------------+
-|     16     |        4        |   2   |     2     |     4      |
-
-pfhs = 28;
-
-framing overhead for packet frames is: fhs + cths + pths + phs = 78 bytes + random data length
-framing overhead for packet fragment frames is: fhs + cths + pths + pfhs = 74 bytes + random data length
-
-struct PacketHeader {
-    ui32 magic;
-    ui8 type;
-    GUID seesion;
-    ui32 sequenceNumber;
-    ui32 length;
-};
-
-type = 1 (plaintext)
-
-record
-
-type = 2 (ciphertext)
-
-struct FrameHeader {
-    ID keyId;
-    ui32 length;
-};
-struct CiphertextHeader {
-    ui8 ivLength;
-    ui16 ciphertextLength;
-    ui8 macLength;
-};
-ciphertext (iv, ciphertext, mac)
-
-after decrypting ciphertext:
-
-ui8 randomLength;
-random
-
-ui8 type;
-
-type = 1 (record)
-
-struct RecordHeader {
-    ui16 flags;
-    ui16 fragmentCount;
-    ui32 length;
-};
-
-type = 2 (fragment)
-
-struct FragmentHeader {
-    ui32 offset;
-    ui32 length;
-};
-
-record or fragment data
-
-once the record is assembled from fragments, the buffer contains a Serializable.
+phs = 6 + id size + size size
