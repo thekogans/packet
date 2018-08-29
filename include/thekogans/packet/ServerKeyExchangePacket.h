@@ -25,7 +25,6 @@
 #include "thekogans/crypto/KeyExchange.h"
 #include "thekogans/packet/Config.h"
 #include "thekogans/packet/Packet.h"
-#include "thekogans/packet/Session.h"
 
 namespace thekogans {
     namespace packet {

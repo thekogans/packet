@@ -24,7 +24,6 @@
 #include "thekogans/crypto/ID.h"
 #include "thekogans/crypto/Cipher.h"
 #include "thekogans/packet/Config.h"
-#include "thekogans/packet/Session.h"
 #include "thekogans/packet/Packet.h"
 #include "thekogans/packet/ValueParser.h"
 

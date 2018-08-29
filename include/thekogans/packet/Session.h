@@ -34,6 +34,8 @@ namespace thekogans {
         /// \see{Packet} payload. Since session ids are random
         /// \see{util::GUID}s, chances of any two matching are
         /// 1 in 2^128 (340,282,366,920,938,463,463,374,607,431,768,211,456).
+        /// NOTE: Session sequence numbers start at random also to
+        /// protect against known plaintext attacks.
 
         struct _LIB_THEKOGANS_PACKET_DECL Session {
             /// \struct Session::Header Session.h thekogans/packet/Session.h
@@ -128,6 +130,8 @@ namespace thekogans {
 
             /// \brief
             /// Reset the session.
+            /// NOTE: Reset randomizes sequence numbers to protect
+            /// against known plaintext attacks.
             void Reset ();
         };
 

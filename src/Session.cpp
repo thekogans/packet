@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with libthekogans_packet. If not, see <http://www.gnu.org/licenses/>.
 
+#include "thekogans/util/RandomSource.h"
 #include "thekogans/packet/Session.h"
 
 namespace thekogans {
@@ -30,8 +31,8 @@ namespace thekogans {
 
         void Session::Reset () {
             id = util::GUID::FromRandom ();
-            inboundSequenceNumber = 0;
-            outboundSequenceNumber = 0;
+            inboundSequenceNumber = util::GlobalRandomSource::Instance ().Getui64 ();
+            outboundSequenceNumber = util::GlobalRandomSource::Instance ().Getui64 ();
         }
 
     } // namespace packet
