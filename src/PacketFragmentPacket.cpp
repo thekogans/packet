@@ -17,8 +17,6 @@
 
 #include "thekogans/packet/PacketFragmentPacket.h"
 
-using namespace thekogans;
-
 namespace thekogans {
     namespace packet {
 
@@ -32,11 +30,11 @@ namespace thekogans {
         void PacketFragmentPacket::Read (
                 const Header & /*header*/,
                 util::Serializer &serializer) {
-            serializer >> chunkNumber >> chunkCount >> buffer;
+            serializer >> fragmentNumber >> fragmentCount >> fragment;
         }
 
         void PacketFragmentPacket::Write (util::Serializer &serializer) const {
-            serializer << chunkNumber << chunkCount << buffer;
+            serializer << fragmentNumber << fragmentCount << fragment;
         }
 
     } // namespace packet

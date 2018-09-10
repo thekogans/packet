@@ -41,27 +41,27 @@ namespace thekogans {
             THEKOGANS_UTIL_DECLARE_SERIALIZABLE (PacketFragmentPacket, util::SpinLock)
 
             /// \brief
-            /// \see{Packet} chunk number.
-            util::SizeT chunkNumber;
+            /// \see{Packet} fragment number.
+            util::SizeT fragmentNumber;
             /// \brief
-            /// Total \see{Packet} chunk count.
-            util::SizeT chunkCount;
+            /// Total \see{Packet} fragment count.
+            util::SizeT fragmentCount;
             /// \brief
-            /// \see{Packet} chunk.
-            util::Buffer buffer;
+            /// \see{Packet} fragment.
+            util::Buffer fragment;
 
             /// \brief
             /// ctor.
-            /// \param[in] chunkNumber_ \see{Packet} chunk number.
-            /// \param[in] chunkCount_ Total \see{Packet} chunk count.
-            /// \param[in] buffer_ \see{Packet} chunk.
+            /// \param[in] fragmentNumber_ \see{Packet} fragment number.
+            /// \param[in] fragmentCount_ Total \see{Packet} fragment count.
+            /// \param[in] fragment_ \see{Packet} fragment.
             PacketFragmentPacket (
-                std::size_t chunkNumber_,
-                std::size_t chunkCount_,
-                util::Buffer buffer_) :
-                chunkNumber (chunkNumber_),
-                chunkCount (chunkCount_),
-                buffer (std::move (buffer_)) {}
+                std::size_t fragmentNumber_,
+                std::size_t fragmentCount_,
+                util::Buffer fragment_) :
+                fragmentNumber (fragmentNumber_),
+                fragmentCount (fragmentCount_),
+                fragment (std::move (fragment_)) {}
 
         protected:
             /// \brief
@@ -69,9 +69,9 @@ namespace thekogans {
             /// \return Serialized packet size.
             virtual std::size_t Size () const {
                 return
-                    util::Serializer::Size (chunkNumber) +
-                    util::Serializer::Size (chunkCount) +
-                    util::Serializer::Size (buffer);
+                    util::Serializer::Size (fragmentNumber) +
+                    util::Serializer::Size (fragmentCount) +
+                    util::Serializer::Size (fragment);
             }
 
             /// \brief

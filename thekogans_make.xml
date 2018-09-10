@@ -22,10 +22,12 @@
     <cpp_header>$(organization)/$(project_directory)/Config.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/FrameParser.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/Packet.h</cpp_header>
+    <cpp_header>$(organization)/$(project_directory)/PacketFilter.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/PacketFragmentPacket.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/PacketParser.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/Packets.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/PlaintextHeader.h</cpp_header>
+    <cpp_header>$(organization)/$(project_directory)/ReassemblePacketFragmentsPacketFilter.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/ServerKeyExchangePacket.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/Session.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/ValueParser.h</cpp_header>
@@ -38,6 +40,7 @@
     <cpp_source>PacketFragmentPacket.cpp</cpp_source>
     <cpp_source>PacketParser.cpp</cpp_source>
     <cpp_source>Packets.cpp</cpp_source>
+    <cpp_source>ReassemblePacketFragmentsPacketFilter.cpp</cpp_source>
     <cpp_source>ServerKeyExchangePacket.cpp</cpp_source>
     <cpp_source>Session.cpp</cpp_source>
     <cpp_source>ValueParser.cpp</cpp_source>
