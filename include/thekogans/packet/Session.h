@@ -105,6 +105,18 @@ namespace thekogans {
             Session () {
                 Reset ();
             }
+            /// \brief
+            /// ctor.
+            /// \param[in] id_ Session id.
+            /// \param[in] inboundSequenceNumber_ Inbound \see{Packet} sequence number.
+            /// \param[in] outboundSequenceNumber_ Outbound \see{Packet} sequence number.
+            Session (
+                const util::GUID &id_,
+                util::ui64 inboundSequenceNumber_,
+                util::ui64 outboundSequenceNumber_) :
+                id (id_),
+                inboundSequenceNumber (inboundSequenceNumber_),
+                outboundSequenceNumber (outboundSequenceNumber_) {}
 
             /// \brief
             /// Return the session size.
