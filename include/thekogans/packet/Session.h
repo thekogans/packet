@@ -126,6 +126,14 @@ namespace thekogans {
             }
 
             /// \brief
+            /// Get the Session that will be used by the peer. Basically, this means
+            /// swap inbound and outbound sequence numbers.
+            /// \return Session to send to the communicating peer.
+            Session GetPeerSession () const {
+                return Session (id, outboundSequenceNumber, inboundSequenceNumber);
+            }
+
+            /// \brief
             /// Verify an incoming Header to make sure it contains the
             /// inboundSequenceNumber we expect.
             /// \param[in] header Incoming Header.
