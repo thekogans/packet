@@ -40,9 +40,6 @@ namespace thekogans {
         /// Convenient typedef for util::IntrusiveList<PacketFilter, PACKET_FILTER_LIST_ID>.
         typedef util::IntrusiveList<PacketFilter, PACKET_FILTER_LIST_ID> PacketFilterList;
 
-        // Did I mention M$ is a brain dead company? Here's another
-        // example of their stupidity and the hoops we have to jump
-        // through to get around the obstacles they throw our way.
     #if defined (_MSC_VER)
         #pragma warning (push)
         #pragma warning (disable : 4275)
@@ -51,7 +48,8 @@ namespace thekogans {
         /// \struct PacketFilter PacketFilter.h thekogans/packet/PacketFilter.h
         ///
         /// \brief
-        /// PacketFilter .
+        /// PacketFilter is the base for all incoming and outgoing packet filters. You
+        /// install packet filters in to \see{Tunnel} incoming and outging filter chains.
 
         struct _LIB_THEKOGANS_PACKET_DECL PacketFilter :
                 public util::ThreadSafeRefCounted,
@@ -64,6 +62,18 @@ namespace thekogans {
             /// dtor.
             virtual ~PacketFilter () {}
 
+            /// \brief
+            /// Filter the given packet. You can return one of the following;
+            /// 1. The given packet (possibly modified) for further processing.
+            /// 2. A new packet to stand in the given packets place.
+            /// 3. Packet::Ptr (). This will stop all further processing of the
+            ///    given packet.
+            /// IMPORTANT: If after checking the packet type you realize that
+            /// the given packet is not something you care about you should return
+            /// CallNextPacketFilter to give downstream filters a chance at the
+            /// packet.
+            /// \param[in] packet \see{Packet} to filter.
+            /// \return A filtered packet.
             virtual Packet::Ptr FilterPacket (Packet::Ptr /*packet*/) = 0;
 
         protected:
