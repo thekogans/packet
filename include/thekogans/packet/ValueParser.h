@@ -103,7 +103,7 @@ namespace thekogans {
             std::size_t offset;
             /// \brief
             /// Partial value.
-            util::ui8 valueBuffer[9];
+            util::ui8 valueBuffer[util::SizeT::MAX_SIZE];
             /// \enum
             /// util::SizeT parser is a state machine. These are it's various states.
             enum {
