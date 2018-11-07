@@ -129,7 +129,7 @@ namespace thekogans {
             /// Get the Session that will be used by the peer. Basically, this means
             /// swap inbound and outbound sequence numbers.
             /// \return Session to send to the communicating peer.
-            Session GetPeerSession () const {
+            inline Session GetPeerSession () const {
                 return Session (id, outboundSequenceNumber, inboundSequenceNumber);
             }
 
