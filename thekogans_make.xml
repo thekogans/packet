@@ -3,7 +3,7 @@
                 project_type = "library"
                 major_version = "0"
                 minor_version = "2"
-                patch_version = "0"
+                patch_version = "1"
                 guid = "fade51110e6a01aa70d4542c0a86a202"
                 schema_version = "2">
   <dependencies>

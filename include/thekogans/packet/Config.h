@@ -24,15 +24,15 @@
 
 #if defined (TOOLCHAIN_OS_Windows)
     #define _LIB_THEKOGANS_PACKET_API __stdcall
-    #if defined (TOOLCHAIN_TYPE_Shared)
+    #if defined (THEKOGANS_PACKET_TYPE_Shared)
         #if defined (_LIB_THEKOGANS_PACKET_BUILD)
             #define _LIB_THEKOGANS_PACKET_DECL __declspec (dllexport)
         #else // defined (_LIB_THEKOGANS_PACKET_BUILD)
             #define _LIB_THEKOGANS_PACKET_DECL __declspec (dllimport)
         #endif // defined (_LIB_THEKOGANS_PACKET_BUILD)
-    #else // defined (TOOLCHAIN_TYPE_Shared)
+    #else // defined (THEKOGANS_PACKET_TYPE_Shared)
         #define _LIB_THEKOGANS_PACKET_DECL
-    #endif // defined (TOOLCHAIN_TYPE_Shared)
+    #endif // defined (THEKOGANS_PACKET_TYPE_Shared)
     #if defined (_MSC_VER)
         #pragma warning (disable: 4251)  // using non-exported as public in exported
         #pragma warning (disable: 4786)

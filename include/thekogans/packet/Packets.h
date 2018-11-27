@@ -29,13 +29,13 @@ namespace thekogans {
         /// Packets exposes a StaticInit method to register all \see{Packet}s.
 
         struct _LIB_THEKOGANS_PACKET_DECL Packets {
-        #if defined (TOOLCHAIN_TYPE_Static)
+        #if defined (THEKOGANS_PACKET_TYPE_Static)
             /// \brief
             /// Because the thekogans_packet library uses dynamic initialization, when
             /// using it in static builds call this method to have the library explicitly
             /// include all internal packet types.
             static void StaticInit ();
-        #endif // defined (TOOLCHAIN_TYPE_Static)
+        #endif // defined (THEKOGANS_PACKET_TYPE_Static)
         };
 
     } // namespace packet
