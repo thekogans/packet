@@ -22,7 +22,7 @@ namespace thekogans {
 
         void ValueParser<util::SizeT>::Reset () {
             size = 0;
-            offset = 0;
+            offset = 1;
             state = STATE_SIZE;
         }
 
@@ -33,9 +33,9 @@ namespace thekogans {
                     size = util::SizeT::Size (firstByte);
                     if (size == 1) {
                         value = firstByte >> 1;
+                        Reset ();
                         return true;
                     }
-                    offset = 1;
                     valueBuffer[0] = firstByte;
                     state = STATE_VALUE;
                 }
@@ -43,11 +43,38 @@ namespace thekogans {
             if (state == STATE_VALUE) {
                 offset += serializer.Read (valueBuffer + offset, size - offset);
                 if (offset == size) {
-                    state = STATE_SIZE;
                     util::TenantReadBuffer buffer (serializer.endianness, valueBuffer, size);
                     buffer >> value;
+                    Reset ();
                     return true;
                 }
+            }
+            return false;
+        }
+
+        void ValueParser<util::ui8 *>::Reset () {
+            offset = 0;
+        }
+
+        void ValueParser<util::ui8 *>::Reset (
+                util::ui8 *value_,
+                std::size_t length_) {
+            if (value_ != 0 && length_ > 0) {
+                value = value_;
+                length = length_;
+                offset = 0;
+            }
+            else {
+                THEKOGANS_UTIL_THROW_ERROR_CODE_EXCEPTION (
+                    THEKOGANS_UTIL_OS_ERROR_CODE_EINVAL);
+            }
+        }
+
+        bool ValueParser<util::ui8 *>::ParseValue (util::Serializer &serializer) {
+            offset += serializer.Read (value + offset, length - offset);
+            if (offset == length) {
+                Reset ();
+                return true;
             }
             return false;
         }
@@ -64,16 +91,16 @@ namespace thekogans {
                 if (lengthParser.ParseValue (serializer)) {
                     value.resize (length);
                     if (length == 0) {
+                        Reset ();
                         return true;
                     }
-                    offset = 0;
                     state = STATE_STRING;
                 }
             }
             if (state == STATE_STRING) {
                 offset += serializer.Read (&value[offset], length - offset);
                 if (offset == length) {
-                    state = STATE_LENGTH;
+                    Reset ();
                     return true;
                 }
             }
@@ -120,7 +147,7 @@ namespace thekogans {
             }
             if (state == STATE_SIZE) {
                 if (sizeParser.ParseValue (serializer)) {
-                    state = STATE_MAGIC;
+                    Reset ();
                     return true;
                 }
             }
@@ -141,7 +168,7 @@ namespace thekogans {
             }
             if (state == STATE_CIPHERTEXT_LENGTH) {
                 if (ciphertextLengthParser.ParseValue (serializer)) {
-                    state = STATE_KEY_ID;
+                    Reset ();
                     return true;
                 }
             }

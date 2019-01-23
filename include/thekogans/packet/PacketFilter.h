@@ -52,7 +52,7 @@ namespace thekogans {
         /// install packet filters in to \see{Tunnel} incoming and outging filter chains.
 
         struct _LIB_THEKOGANS_PACKET_DECL PacketFilter :
-                public util::ThreadSafeRefCounted,
+                public virtual util::ThreadSafeRefCounted,
                 public PacketFilterList::Node {
             /// \brief
             /// Convenient typedef for util::ThreadSafeRefCounted::Ptr<PacketFilter>.

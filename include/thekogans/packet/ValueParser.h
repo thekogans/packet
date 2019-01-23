@@ -22,7 +22,6 @@
 #include "thekogans/util/SizeT.h"
 #include "thekogans/util/Serializable.h"
 #include "thekogans/util/Serializer.h"
-#include "thekogans/util/Buffer.h"
 #include "thekogans/crypto/FrameHeader.h"
 #include "thekogans/packet/Config.h"
 
@@ -137,6 +136,51 @@ namespace thekogans {
             bool ParseValue (util::Serializer &serializer);
         };
 
+        /// \struct ValueParser<util::ui8 *> ValueParser.h thekogans/packet/ValueParser.h
+        ///
+        /// \brief
+        /// Specialization of ValueParser for util::ui8 *.
+
+        template<>
+        struct _LIB_THEKOGANS_PACKET_DECL ValueParser<util::ui8 *> {
+        private:
+            /// \brief
+            /// String to parse.
+            util::ui8 *value;
+            /// \brief
+            /// String length.
+            std::size_t length;
+            /// \brief
+            /// Offset in to value where to write the next chunk.
+            std::size_t offset;
+
+        public:
+            /// \brief
+            /// ctor.
+            /// \param[out] value_ Value to parse.
+            ValueParser (
+                    util::ui8 *value_,
+                    std::size_t length_) {
+                Reset (value_, length_);
+            }
+
+            /// \brief
+            /// Rewind the offset to get it ready for the next value.
+            void Reset ();
+            /// \brief
+            ///
+            void Reset (
+                util::ui8 *value_,
+                std::size_t length_);
+
+            /// \brief
+            /// Try to parse a util::ui8 * from the given serializer.
+            /// \param[in] serializer Contains a complete or partial std::string.
+            /// \return true == std::string was successfully parsed,
+            /// false == call back with more data.
+            bool ParseValue (util::Serializer &serializer);
+        };
+
         /// \struct ValueParser<std::string> ValueParser.h thekogans/packet/ValueParser.h
         ///
         /// \brief
@@ -184,8 +228,8 @@ namespace thekogans {
             void Reset ();
 
             /// \brief
-            /// Try to parse a std::string from the given buffer.
-            /// \param[in] buffer Contains a complete or partial std::string.
+            /// Try to parse a std::string from the given serializer.
+            /// \param[in] serializer Contains a complete or partial std::string.
             /// \return true == std::string was successfully parsed,
             /// false == call back with more data.
             bool ParseValue (util::Serializer &serializer);
@@ -249,8 +293,8 @@ namespace thekogans {
             void Reset ();
 
             /// \brief
-            /// Try to parse a \see{util::Serializable::Header} from the given buffer.
-            /// \param[in] buffer Contains a complete or partial \see{util::Serializable::Header}.
+            /// Try to parse a \see{util::Serializable::Header} from the given serializer.
+            /// \param[in] serializer Contains a complete or partial \see{util::Serializable::Header}.
             /// \return true == \see{util::Serializable::Header} was successfully parsed,
             /// false == call back with more data.
             bool ParseValue (util::Serializer &serializer);
@@ -299,8 +343,8 @@ namespace thekogans {
             void Reset ();
 
             /// \brief
-            /// Try to parse a \see{crypto::FrameHeader} from the given buffer.
-            /// \param[in] buffer Contains a complete or partial \see{crypto::FrameHeader}.
+            /// Try to parse a \see{crypto::FrameHeader} from the given serializer.
+            /// \param[in] serializer Contains a complete or partial \see{crypto::FrameHeader}.
             /// \return true == \see{crypto::FrameHeader} was successfully parsed,
             /// false == call back with more data.
             bool ParseValue (util::Serializer &serializer);
