@@ -30,7 +30,6 @@
     <cpp_header>$(organization)/$(project_directory)/ReassemblePacketFragmentsPacketFilter.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/ServerKeyExchangePacket.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/Session.h</cpp_header>
-    <cpp_header>$(organization)/$(project_directory)/ValueParser.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/Version.h</cpp_header>
   </cpp_headers>
   <cpp_sources prefix = "src">
@@ -43,7 +42,6 @@
     <cpp_source>ReassemblePacketFragmentsPacketFilter.cpp</cpp_source>
     <cpp_source>ServerKeyExchangePacket.cpp</cpp_source>
     <cpp_source>Session.cpp</cpp_source>
-    <cpp_source>ValueParser.cpp</cpp_source>
     <cpp_source>Version.cpp</cpp_source>
   </cpp_sources>
 </thekogans_make>

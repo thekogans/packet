@@ -23,10 +23,10 @@
 #include "thekogans/util/Buffer.h"
 #include "thekogans/crypto/ID.h"
 #include "thekogans/crypto/Cipher.h"
+#include "thekogans/crypto/FrameHeader.h"
 #include "thekogans/packet/Config.h"
 #include "thekogans/packet/Session.h"
 #include "thekogans/packet/Packet.h"
-#include "thekogans/packet/ValueParser.h"
 
 namespace thekogans {
     namespace packet {
@@ -189,7 +189,7 @@ namespace thekogans {
             crypto::Cipher::Ptr cipher;
             /// \brief
             /// Parses \see{crypto::FrameHeader}.
-            ValueParser<crypto::FrameHeader> frameHeaderParser;
+            util::ValueParser<crypto::FrameHeader> frameHeaderParser;
 
         public:
             /// \brief

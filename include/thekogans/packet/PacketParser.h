@@ -19,13 +19,13 @@
 #define __thekogans_packet_PacketParser_h
 
 #include "thekogans/util/Types.h"
+#include "thekogans/util/Serializable.h"
 #include "thekogans/util/Serializer.h"
 #include "thekogans/util/Buffer.h"
 #include "thekogans/crypto/ID.h"
 #include "thekogans/crypto/Cipher.h"
 #include "thekogans/packet/Config.h"
 #include "thekogans/packet/Packet.h"
-#include "thekogans/packet/ValueParser.h"
 
 namespace thekogans {
     namespace packet {
@@ -101,7 +101,7 @@ namespace thekogans {
             util::Buffer payload;
             /// \brief
             /// Parses \see{util::Serializable::Header}.
-            ValueParser<util::Serializable::Header> headerParser;
+            util::ValueParser<util::Serializable::Header> headerParser;
 
         public:
             /// \brief
