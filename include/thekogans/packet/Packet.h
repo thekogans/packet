@@ -33,20 +33,14 @@ namespace thekogans {
         ///
         /// \brief
         /// Packet extends \see{util::Serializable} to add application level
-        /// secure transport. Please consult \see{FrameParser} and \see{PacketParser}
-        /// to learn about Packet wire structure.
+        /// secure transport. Please consult \see{FrameParser} to learn about
+        /// Packet wire structure.
 
         struct _LIB_THEKOGANS_PACKET_DECL Packet : public util::Serializable {
             /// \brief
             /// Convenient typedef for util::ThreadSafeRefCounted::Ptr<Packet>.
             typedef util::ThreadSafeRefCounted::Ptr<Packet> Ptr;
 
-            /// \brief
-            /// Exposes \see{util::Serializable::Serialize}.
-            /// \return \see{util::Buffer} containing the serialized packet.
-            inline util::Buffer Serialize () const {
-                return util::Serializable::Serialize ();
-            }
             /// \brief
             /// See \see{FrameParser} to learn about the wire structure created
             /// by this method.
@@ -59,26 +53,6 @@ namespace thekogans {
                 Session *session,
                 bool compress = false) const;
 
-            /// \brief
-            /// Exposes \see{util::Serializable::Deserialize}.
-            /// \param[in] header \see{util::Serializable::Header}.
-            /// \param[in] serializer \see{util::Serializer} containing the packet data.
-            /// \return Deserialized packet.
-            static Ptr Deserialize (
-                    const Header &header,
-                    util::Serializer &serializer) {
-                return util::dynamic_refcounted_pointer_cast<Packet> (
-                    util::Serializable::Deserialize (header, serializer));
-            }
-            /// \brief
-            /// Exposes \see{util::Serializable::Deserialize}.
-            /// \param[in] serializer \see{util::Serializer} containing the
-            /// \see{util::Serializable::Header} followed by packet data.
-            /// \return Deserialized packet.
-            static Ptr Deserialize (util::Serializer &serializer) {
-                return util::dynamic_refcounted_pointer_cast<Packet> (
-                    util::Serializable::Deserialize (serializer));
-            }
             /// \brief
             /// This method is not quite a mirror image of Serialize above. That is
             /// to say you can't take Serialize's output and feed it to this method.
@@ -104,15 +78,23 @@ namespace thekogans {
                     PlaintextHeader::SIZE +
                     PlaintextHeader::MAX_RANDOM_LENGTH +
                     Session::Header::SIZE +
-                    util::Serializable::Header (type, 0, maxPacketSize).Size ();
+                    util::Serializable::BinHeader (type, 0, maxPacketSize).Size ();
             }
         };
 
         /// \brief
-        /// Implement Packet extraction operator.
-        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_EXTRACTION_OPERATOR (Packet)
+        /// Implement Packet extraction operators.
+        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_EXTRACTION_OPERATORS (Packet)
 
     } // namespace packet
+
+    namespace util {
+
+        /// \brief
+        /// Implement Packet value parser.
+        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_VALUE_PARSER (packet::Packet)
+
+    } // namespace util
 } // namespace thekogans
 
 #endif // !defined (__thekogans_packet_Packet_h)

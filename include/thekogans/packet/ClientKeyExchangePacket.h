@@ -80,12 +80,30 @@ namespace thekogans {
             /// \param[in] header Packet header.
             /// \param[in] serializer Packet contents.
             virtual void Read (
-                const Header & /*header*/,
+                const BinHeader & /*header*/,
                 util::Serializer &serializer);
             /// \brief
             /// Serialize the packet.
             /// \param[out] serializer Packet contents.
             virtual void Write (util::Serializer &serializer) const;
+
+            /// \brief
+            /// "CipherSuite"
+            static const char * const ATTR_CIPHER_SUITE;
+            /// \brief
+            /// "Params"
+            static const char * const TAG_PARAMS;
+
+            /// \brief
+            /// Read a Serializable from an XML DOM.
+            /// \param[in] node XML DOM representation of a Serializable.
+            virtual void Read (
+                const TextHeader & /*header*/,
+                const pugi::xml_node &node);
+            /// \brief
+            /// Write a Serializable to the XML DOM.
+            /// \param[out] node Parent node.
+            virtual void Write (pugi::xml_node &node) const;
 
             /// \brief
             /// ClientKeyExchangePacket is neither copy constructable nor assignable.

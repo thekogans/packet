@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with libthekogans_packet. If not, see <http://www.gnu.org/licenses/>.
 
+#include "thekogans/util/StringUtils.h"
+#include "thekogans/util/Base64.h"
 #include "thekogans/packet/PacketFragmentPacket.h"
 
 namespace thekogans {
@@ -28,13 +30,34 @@ namespace thekogans {
             util::DefaultAllocator::Global)
 
         void PacketFragmentPacket::Read (
-                const Header & /*header*/,
+                const BinHeader & /*header*/,
                 util::Serializer &serializer) {
             serializer >> fragmentNumber >> fragmentCount >> fragment;
         }
 
         void PacketFragmentPacket::Write (util::Serializer &serializer) const {
             serializer << fragmentNumber << fragmentCount << fragment;
+        }
+
+        const char * const PacketFragmentPacket::ATTR_FRAGMENT_NUMBER = "FragmentNumber";
+        const char * const PacketFragmentPacket::ATTR_FRAGMENT_COUNT = "FragmentCount";
+
+        void PacketFragmentPacket::Read (
+                const TextHeader & /*header*/,
+                const pugi::xml_node &node) {
+            fragmentNumber = util::stringToui64 (node.attribute (ATTR_FRAGMENT_NUMBER).value ());
+            fragmentCount = util::stringToui64 (node.attribute (ATTR_FRAGMENT_COUNT).value ());
+            const char *encodedFragment = node.text ().get ();
+            fragment = util::Base64::Decode (encodedFragment, strlen (encodedFragment));
+        }
+
+        void PacketFragmentPacket::Write (pugi::xml_node &node) const {
+            node.append_attribute (ATTR_FRAGMENT_NUMBER).set_value (util::ui64Tostring (fragmentNumber).c_str ());
+            node.append_attribute (ATTR_FRAGMENT_COUNT).set_value (util::ui64Tostring (fragmentCount).c_str ());
+            node.append_child (pugi::node_pcdata).set_value (
+                util::Base64::Encode (
+                    fragment.GetReadPtr (),
+                    fragment.GetDataAvailableForReading ()).Tostring ().c_str ());
         }
 
     } // namespace packet

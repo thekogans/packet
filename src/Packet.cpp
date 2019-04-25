@@ -63,7 +63,9 @@ namespace thekogans {
                     plaintext << session->GetOutboundHeader ();
                 }
                 if (compress) {
-                    plaintext += Serialize ().Deflate ();
+                    util::Buffer buffer (util::NetworkEndian, util::Serializable::Size (*this));
+                    buffer << *this;
+                    plaintext += buffer.Deflate ();
                 }
                 else {
                     plaintext << *this;
@@ -114,7 +116,9 @@ namespace thekogans {
             if (plaintextHeader.flags & PlaintextHeader::FLAGS_COMPRESSED) {
                 plaintext = plaintext.Inflate ();
             }
-            return Deserialize (plaintext);
+            Packet::Ptr packet;
+            plaintext >> packet;
+            return packet;
         }
 
     } // namespace packet

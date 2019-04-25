@@ -28,13 +28,30 @@ namespace thekogans {
             util::DefaultAllocator::Global)
 
         void ServerKeyExchangePacket::Read (
-                const Header & /*header*/,
+                const BinHeader & /*header*/,
                 util::Serializer &serializer) {
             serializer >> cipherSuite >> params;
         }
 
         void ServerKeyExchangePacket::Write (util::Serializer &serializer) const {
             serializer << cipherSuite << *params;
+        }
+
+        const char * const ServerKeyExchangePacket::ATTR_CIPHER_SUITE = "CipherSuite";
+        const char * const ServerKeyExchangePacket::TAG_PARAMS = "Params";
+
+        void ServerKeyExchangePacket::Read (
+                const TextHeader & /*header*/,
+                const pugi::xml_node &node) {
+            cipherSuite = node.attribute (ATTR_CIPHER_SUITE).value ();
+            pugi::xml_node paramsNode = node.child (TAG_PARAMS);
+            paramsNode >> params;
+        }
+
+        void ServerKeyExchangePacket::Write (pugi::xml_node &node) const {
+            node.append_attribute (ATTR_CIPHER_SUITE).set_value (cipherSuite.c_str ());
+            pugi::xml_node paramsNode = node.append_child (TAG_PARAMS);
+            paramsNode << *params;
         }
 
     } // namespace packet

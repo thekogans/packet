@@ -13,8 +13,6 @@
                 name = "crypto"/>
     <dependency organization = "thekogans"
                 name = "stream"/>
-    <toolchain organization = "thekogans"
-               name = "pugixml"/>
   </dependencies>
   <cpp_headers prefix = "include"
                install = "yes">
@@ -24,7 +22,6 @@
     <cpp_header>$(organization)/$(project_directory)/Packet.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/PacketFilter.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/PacketFragmentPacket.h</cpp_header>
-    <cpp_header>$(organization)/$(project_directory)/PacketParser.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/Packets.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/PlaintextHeader.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/ReassemblePacketFragmentsPacketFilter.h</cpp_header>
@@ -37,7 +34,6 @@
     <cpp_source>FrameParser.cpp</cpp_source>
     <cpp_source>Packet.cpp</cpp_source>
     <cpp_source>PacketFragmentPacket.cpp</cpp_source>
-    <cpp_source>PacketParser.cpp</cpp_source>
     <cpp_source>Packets.cpp</cpp_source>
     <cpp_source>ReassemblePacketFragmentsPacketFilter.cpp</cpp_source>
     <cpp_source>ServerKeyExchangePacket.cpp</cpp_source>

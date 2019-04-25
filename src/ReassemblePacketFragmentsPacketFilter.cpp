@@ -38,9 +38,11 @@ namespace thekogans {
                             packetFragment->fragment = std::move (packetFragmentBuffer);
                         }
                     }
-                    return packetFragment->fragmentNumber == packetFragment->fragmentCount ?
-                        Packet::Deserialize (packetFragment->fragment) :
-                        Packet::Ptr ();
+                    Packet::Ptr packet;
+                    if (packetFragment->fragmentNumber == packetFragment->fragmentCount) {
+                        packetFragment->fragment >> packet;
+                    }
+                    return packet;
                 }
                 return CallNextPacketFilter (packet);
             }
