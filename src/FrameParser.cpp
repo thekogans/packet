@@ -70,7 +70,7 @@ namespace thekogans {
                                 Reset ();
                                 THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
                                     "Invalid key id: %s.",
-                                    frameHeader.keyId.ToString ().c_str ());
+                                    frameHeader.keyId.ToHexString ().c_str ());
                             }
                         }
                         break;

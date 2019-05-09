@@ -54,5 +54,17 @@ namespace thekogans {
             paramsNode << *params;
         }
 
+        void ServerKeyExchangePacket::Read (
+                const TextHeader & /*header*/,
+                const util::JSON::Object &object) {
+            // FIXME: implement
+            assert (0);
+        }
+
+        void ServerKeyExchangePacket::Write (util::JSON::Object &object) const {
+            // FIXME: implement
+            assert (0);
+        }
+
     } // namespace packet
 } // namespace thekogans
