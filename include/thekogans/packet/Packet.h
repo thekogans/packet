@@ -83,16 +83,16 @@ namespace thekogans {
         };
 
         /// \brief
-        /// Implement Packet extraction operators.
-        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_EXTRACTION_OPERATORS (Packet)
+        /// Implement Packet::Ptr extraction operators.
+        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_PTR_EXTRACTION_OPERATORS (Packet)
 
     } // namespace packet
 
     namespace util {
 
         /// \brief
-        /// Implement Packet value parser.
-        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_VALUE_PARSER (packet::Packet)
+        /// Implement Packet::Ptr value parser.
+        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_PTR_VALUE_PARSER (packet::Packet)
 
     } // namespace util
 } // namespace thekogans
