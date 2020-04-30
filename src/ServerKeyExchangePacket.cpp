@@ -25,7 +25,7 @@ namespace thekogans {
             1,
             util::SpinLock,
             8,
-            util::DefaultAllocator::Global)
+            util::DefaultAllocator::Instance ())
 
         void ServerKeyExchangePacket::Read (
                 const BinHeader & /*header*/,
