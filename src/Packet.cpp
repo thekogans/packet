@@ -81,7 +81,7 @@ namespace thekogans {
             }
         }
 
-        Packet::Ptr Packet::Deserialize (
+        Packet::SharedPtr Packet::Deserialize (
                 util::Buffer &ciphertext,
                 crypto::Cipher &cipher,
                 Session *session) {
@@ -116,7 +116,7 @@ namespace thekogans {
             if (plaintextHeader.flags & PlaintextHeader::FLAGS_COMPRESSED) {
                 plaintext = plaintext.Inflate ();
             }
-            Packet::Ptr packet;
+            Packet::SharedPtr packet;
             plaintext >> packet;
             return packet;
         }

@@ -21,7 +21,7 @@
 namespace thekogans {
     namespace packet {
 
-        Packet::Ptr ReassemblePacketFragmentsPacketFilter::FilterPacket (Packet::Ptr packet) {
+        Packet::SharedPtr ReassemblePacketFragmentsPacketFilter::FilterPacket (Packet::SharedPtr packet) {
             if (packet.Get () != 0) {
                 if (packet->GetType () == PacketFragmentPacket::TYPE) {
                     PacketFragmentPacket *packetFragment =
@@ -38,7 +38,7 @@ namespace thekogans {
                             packetFragment->fragment = std::move (packetFragmentBuffer);
                         }
                     }
-                    Packet::Ptr packet;
+                    Packet::SharedPtr packet;
                     if (packetFragment->fragmentNumber == packetFragment->fragmentCount) {
                         packetFragment->fragment >> packet;
                     }

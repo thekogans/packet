@@ -52,11 +52,11 @@ namespace thekogans {
         /// install packet filters in to \see{Tunnel} incoming and outging filter chains.
 
         struct _LIB_THEKOGANS_PACKET_DECL PacketFilter :
-                public virtual util::ThreadSafeRefCounted,
+                public virtual util::RefCounted,
                 public PacketFilterList::Node {
             /// \brief
-            /// Convenient typedef for util::ThreadSafeRefCounted::Ptr<PacketFilter>.
-            typedef util::ThreadSafeRefCounted::Ptr<PacketFilter> Ptr;
+            /// Convenient typedef for util::RefCounted::SharedPtr<PacketFilter>.
+            typedef util::RefCounted::SharedPtr<PacketFilter> SharedPtr;
 
             /// \brief
             /// dtor.
@@ -66,7 +66,7 @@ namespace thekogans {
             /// Filter the given packet. You can return one of the following;
             /// 1. The given packet (possibly modified) for further processing.
             /// 2. A new packet to stand in the given packets place.
-            /// 3. Packet::Ptr (). This will stop all further processing of the
+            /// 3. Packet::SharedPtr (). This will stop all further processing of the
             ///    given packet.
             /// IMPORTANT: If after checking the packet type you realize that
             /// the given packet is not something you care about you should return
@@ -74,7 +74,7 @@ namespace thekogans {
             /// packet.
             /// \param[in] packet \see{Packet} to filter.
             /// \return A filtered packet.
-            virtual Packet::Ptr FilterPacket (Packet::Ptr /*packet*/) = 0;
+            virtual Packet::SharedPtr FilterPacket (Packet::SharedPtr /*packet*/) = 0;
 
         protected:
             /// \brief
@@ -83,7 +83,7 @@ namespace thekogans {
             /// \param[in] packet \see{Packet} to pass to the next filter.
             /// \return Either the results of next packet filter (if there is one),
             /// or an unchanged packet.
-            inline Packet::Ptr CallNextPacketFilter (Packet::Ptr packet) const {
+            inline Packet::SharedPtr CallNextPacketFilter (Packet::SharedPtr packet) const {
                 return next != 0 ? next->FilterPacket (packet) : packet;
             }
         };

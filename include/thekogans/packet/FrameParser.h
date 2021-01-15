@@ -141,7 +141,7 @@ namespace thekogans {
                 /// Called by the parser to get the cipher for a given key id.
                 /// \param[in] keyId \see{crypto::SymmetricKey} id.
                 /// \return \see{crypto::Cipher} corresponding to the given key id.
-                virtual crypto::Cipher::Ptr GetCipherForKeyId (
+                virtual crypto::Cipher::SharedPtr GetCipherForKeyId (
                     const crypto::ID & /*keyId*/) throw () = 0;
 
                 /// \brief
@@ -154,8 +154,8 @@ namespace thekogans {
                 /// \param[in] packet New \see{Packet}.
                 /// \param[in] cipher \see{crypto::Cipher} that was used to decrypt this packet.
                 virtual void HandlePacket (
-                    Packet::Ptr /*packet*/,
-                    crypto::Cipher::Ptr /*cipher*/) throw () = 0;
+                    Packet::SharedPtr /*packet*/,
+                    crypto::Cipher::SharedPtr /*cipher*/) throw () = 0;
             };
 
         private:
@@ -186,7 +186,7 @@ namespace thekogans {
             util::Buffer ciphertext;
             /// \brief
             /// \see{crypto::Cipher} corresponding to frameHeader.keyId.
-            crypto::Cipher::Ptr cipher;
+            crypto::Cipher::SharedPtr cipher;
             /// \brief
             /// Parses \see{crypto::FrameHeader}.
             util::ValueParser<crypto::FrameHeader> frameHeaderParser;

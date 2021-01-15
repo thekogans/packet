@@ -60,7 +60,7 @@ namespace thekogans {
             /// \param[in] packet \see{Packet} to filter.
             /// \return If the given packet is \see{PacketFragmentPacket}, reassemble
             /// (and possibly return) the packet it contains, otherwise call CallNextPacketFilter.
-            virtual Packet::Ptr FilterPacket (Packet::Ptr packet);
+            virtual Packet::SharedPtr FilterPacket (Packet::SharedPtr packet);
         };
 
     } // namespace packet
