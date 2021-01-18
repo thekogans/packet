@@ -55,7 +55,7 @@ namespace thekogans {
                 public virtual util::RefCounted,
                 public PacketFilterList::Node {
             /// \brief
-            /// Convenient typedef for util::ThreadSafeRefCounted::Ptr<PacketFilter>.
+            /// Convenient typedef for util::RefCounted::SharedPtr<PacketFilter>.
             typedef util::RefCounted::SharedPtr<PacketFilter> SharedPtr;
 
             /// \brief
@@ -66,7 +66,7 @@ namespace thekogans {
             /// Filter the given packet. You can return one of the following;
             /// 1. The given packet (possibly modified) for further processing.
             /// 2. A new packet to stand in the given packets place.
-            /// 3. Packet::Ptr (). This will stop all further processing of the
+            /// 3. Packet::SharedPtr (). This will stop all further processing of the
             ///    given packet.
             /// IMPORTANT: If after checking the packet type you realize that
             /// the given packet is not something you care about you should return

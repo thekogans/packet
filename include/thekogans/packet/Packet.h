@@ -38,7 +38,7 @@ namespace thekogans {
 
         struct _LIB_THEKOGANS_PACKET_DECL Packet : public util::Serializable {
             /// \brief
-            /// Convenient typedef for util::ThreadSafeRefCounted::Ptr<Packet>.
+            /// Convenient typedef for util::RefCounted::SharedPtr<Packet>.
             typedef util::RefCounted::SharedPtr<Packet> SharedPtr;
 
             /// \brief
@@ -83,7 +83,7 @@ namespace thekogans {
         };
 
         /// \brief
-        /// Implement Packet::Ptr extraction operators.
+        /// Implement Packet::SharedPtr extraction operators.
         THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_PTR_EXTRACTION_OPERATORS (Packet)
 
     } // namespace packet
@@ -91,7 +91,7 @@ namespace thekogans {
     namespace util {
 
         /// \brief
-        /// Implement Packet::Ptr value parser.
+        /// Implement Packet::SharedPtr value parser.
         THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_PTR_VALUE_PARSER (packet::Packet)
 
     } // namespace util

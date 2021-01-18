@@ -21,11 +21,11 @@ namespace thekogans {
     namespace packet {
 
         _LIB_THEKOGANS_PACKET_DECL const util::Version & _LIB_THEKOGANS_PACKET_API GetVersion () {
-            static const util::Version version (
+            static const util::Version *version = new util::Version (
                 THEKOGANS_PACKET_MAJOR_VERSION,
                 THEKOGANS_PACKET_MINOR_VERSION,
                 THEKOGANS_PACKET_PATCH_VERSION);
-            return version;
+            return *version;
         }
 
     } // namespace packet
