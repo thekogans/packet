@@ -52,11 +52,11 @@ namespace thekogans {
         /// install packet filters in to \see{Tunnel} incoming and outging filter chains.
 
         struct _LIB_THEKOGANS_PACKET_DECL PacketFilter :
-                public virtual util::ThreadSafeRefCounted,
+                public virtual util::RefCounted,
                 public PacketFilterList::Node {
             /// \brief
             /// Convenient typedef for util::ThreadSafeRefCounted::Ptr<PacketFilter>.
-            typedef util::ThreadSafeRefCounted::Ptr<PacketFilter> Ptr;
+            typedef util::RefCounted::SharedPtr<PacketFilter> SharedPtr;
 
             /// \brief
             /// dtor.
@@ -74,7 +74,7 @@ namespace thekogans {
             /// packet.
             /// \param[in] packet \see{Packet} to filter.
             /// \return A filtered packet.
-            virtual Packet::Ptr FilterPacket (Packet::Ptr /*packet*/) = 0;
+            virtual Packet::SharedPtr FilterPacket (Packet::SharedPtr /*packet*/) = 0;
 
         protected:
             /// \brief
@@ -83,7 +83,7 @@ namespace thekogans {
             /// \param[in] packet \see{Packet} to pass to the next filter.
             /// \return Either the results of next packet filter (if there is one),
             /// or an unchanged packet.
-            inline Packet::Ptr CallNextPacketFilter (Packet::Ptr packet) const {
+            inline Packet::SharedPtr CallNextPacketFilter (Packet::SharedPtr packet) const {
                 return next != 0 ? next->FilterPacket (packet) : packet;
             }
         };

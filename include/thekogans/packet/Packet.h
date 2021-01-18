@@ -39,7 +39,7 @@ namespace thekogans {
         struct _LIB_THEKOGANS_PACKET_DECL Packet : public util::Serializable {
             /// \brief
             /// Convenient typedef for util::ThreadSafeRefCounted::Ptr<Packet>.
-            typedef util::ThreadSafeRefCounted::Ptr<Packet> Ptr;
+            typedef util::RefCounted::SharedPtr<Packet> SharedPtr;
 
             /// \brief
             /// See \see{FrameParser} to learn about the wire structure created
@@ -62,7 +62,7 @@ namespace thekogans {
             /// \param[in] cipher \see{crypto::Cipher} corresponding to the \see{FrameHeader::keyId}
             /// used to encrypt the payload.
             /// \param[in] session Optional \see{Session} to validate the baked in \see{Session::Header}.
-            static Ptr Deserialize (
+            static SharedPtr Deserialize (
                 util::Buffer &ciphertext,
                 crypto::Cipher &cipher,
                 Session *session);

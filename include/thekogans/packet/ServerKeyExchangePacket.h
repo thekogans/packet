@@ -54,7 +54,7 @@ namespace thekogans {
             std::string cipherSuite;
             /// \brief
             /// \see{KeyExchange::Params} used for \see{SymmetricKey} exchange.
-            crypto::KeyExchange::Params::Ptr params;
+            crypto::KeyExchange::Params::SharedPtr params;
 
             /// \brief
             /// ctor.
@@ -62,7 +62,7 @@ namespace thekogans {
             /// \param[in] params_ \see{KeyExchange::Params} used for \see{SymmetricKey} exchange.
             ServerKeyExchangePacket (
                 const std::string &cipherSuite_,
-                crypto::KeyExchange::Params::Ptr params_) :
+                crypto::KeyExchange::Params::SharedPtr params_) :
                 cipherSuite (cipherSuite_),
                 params (params_) {}
 
