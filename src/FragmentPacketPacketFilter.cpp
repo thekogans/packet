@@ -24,7 +24,7 @@
 namespace thekogans {
     namespace packet {
 
-        Packet::Ptr FragmentPacketPacketFilter::FilterPacket (Packet::Ptr packet) {
+        Packet::SharedPtr FragmentPacketPacketFilter::FilterPacket (Packet::SharedPtr packet) {
             if (packet.Get () != 0) {
                 std::size_t packetSize = util::Serializable::Size (*packet);
                 std::size_t fragmentSize =
@@ -49,14 +49,14 @@ namespace thekogans {
                         // as the if above will fail and the new packet will continue
                         // down the pipeline (CallNextPacketFilter below).
                         tunnel.SendPacket (
-                            Packet::Ptr (
+                            Packet::SharedPtr (
                                 new PacketFragmentPacket (
                                     fragmentNumber,
                                     fragmentCount,
                                     std::move (fragment))));
                     }
                     // Since we've consumed the given packet, discard it.
-                    return Packet::Ptr ();
+                    return Packet::SharedPtr ();
                 }
                 return CallNextPacketFilter (packet);
             }

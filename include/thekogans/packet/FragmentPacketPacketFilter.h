@@ -60,7 +60,7 @@ namespace thekogans {
             /// \param[in] packet \see{Packet} to filter.
             /// \return If the given packet is too big, fragment it in to multiple
             /// \see{PacketFragmentPacket} packets, otherwise call CallNextPacketFilter.
-            virtual Packet::Ptr FilterPacket (Packet::Ptr packet);
+            virtual Packet::SharedPtr FilterPacket (Packet::SharedPtr packet) override;
         };
 
     } // namespace packet
