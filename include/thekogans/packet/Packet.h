@@ -38,8 +38,8 @@ namespace thekogans {
 
         struct _LIB_THEKOGANS_PACKET_DECL Packet : public util::Serializable {
             /// \brief
-            /// Convenient typedef for util::RefCounted::SharedPtr<Packet>.
-            typedef util::RefCounted::SharedPtr<Packet> SharedPtr;
+            /// Declare \see{RefCounted} pointers.
+            THEKOGANS_UTIL_DECLARE_REF_COUNTED_POINTERS (Packet)
 
             /// \brief
             /// See \see{FrameParser} to learn about the wire structure created

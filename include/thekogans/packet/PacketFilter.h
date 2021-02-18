@@ -55,8 +55,8 @@ namespace thekogans {
                 public virtual util::RefCounted,
                 public PacketFilterList::Node {
             /// \brief
-            /// Convenient typedef for util::RefCounted::SharedPtr<PacketFilter>.
-            typedef util::RefCounted::SharedPtr<PacketFilter> SharedPtr;
+            /// Declare \see{RefCounted} pointers.
+            THEKOGANS_UTIL_DECLARE_REF_COUNTED_POINTERS (PacketFilter)
 
             /// \brief
             /// dtor.
