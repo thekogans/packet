@@ -23,7 +23,7 @@ The design was motivated by the following goals:
   - use the strongest known algorithms:
     - [EC]DHE or RSA for key exchange.
     - [EC]DSA or RSA for authentication.
-    - AES-[128 | 192 | 256]-[CBC | GCM] for symmetrict encryption/decryption.
+    - AES-[128 | 192 | 256]-[CBC | GCM] for symmetric encryption/decryption.
     - SHA2-[256 | 384 | 512] for mac.
   - https://defuse.ca/cbcmodeiv.htm
   - https://moxie.org/blog/the-cryptographic-doom-principle/
