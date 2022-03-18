@@ -56,12 +56,12 @@ namespace thekogans {
 
         void ClientKeyExchangePacket::Read (
                 const TextHeader & /*header*/,
-                const util::JSON::Object &object) {
+                const util::JSON::Object & /*object*/) {
             // FIXME: implement
             assert (0);
         }
 
-        void ClientKeyExchangePacket::Write (util::JSON::Object &object) const {
+        void ClientKeyExchangePacket::Write (util::JSON::Object & /*object*/) const {
             // FIXME: implement
             assert (0);
         }

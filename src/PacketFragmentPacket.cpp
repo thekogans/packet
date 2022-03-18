@@ -62,12 +62,12 @@ namespace thekogans {
 
         void PacketFragmentPacket::Read (
                 const TextHeader & /*header*/,
-                const util::JSON::Object &object) {
+                const util::JSON::Object & /*object*/) {
             // FIXME: implement
             assert (0);
         }
 
-        void PacketFragmentPacket::Write (util::JSON::Object &object) const {
+        void PacketFragmentPacket::Write (util::JSON::Object & /*object*/) const {
             // FIXME: implement
             assert (0);
         }
