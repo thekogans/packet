@@ -20,12 +20,7 @@
 namespace thekogans {
     namespace packet {
 
-        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE (
-            ClientKeyExchangePacket,
-            1,
-            util::SpinLock,
-            8,
-            util::DefaultAllocator::Instance ())
+        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE (ClientKeyExchangePacket, 1)
 
         void ClientKeyExchangePacket::Read (
                 const BinHeader & /*header*/,

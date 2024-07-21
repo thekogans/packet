@@ -38,7 +38,7 @@ namespace thekogans {
         struct _LIB_THEKOGANS_PACKET_DECL PacketFragmentPacket : public Packet {
             /// \brief
             /// Pull in Packet dynamic creation machinery.
-            THEKOGANS_UTIL_DECLARE_SERIALIZABLE (PacketFragmentPacket, util::SpinLock)
+            THEKOGANS_UTIL_DECLARE_SERIALIZABLE (PacketFragmentPacket)
 
             /// \brief
             /// \see{Packet} fragment number.
@@ -56,9 +56,9 @@ namespace thekogans {
             /// \param[in] fragmentCount_ Total \see{Packet} fragment count.
             /// \param[in] fragment_ \see{Packet} fragment.
             PacketFragmentPacket (
-                std::size_t fragmentNumber_,
-                std::size_t fragmentCount_,
-                util::Buffer fragment_) :
+                std::size_t fragmentNumber_ = 0,
+                std::size_t fragmentCount_ = 0,
+                util::Buffer fragment_ = util::Buffer ()) :
                 fragmentNumber (fragmentNumber_),
                 fragmentCount (fragmentCount_),
                 fragment (std::move (fragment_)) {}

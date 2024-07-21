@@ -22,12 +22,7 @@
 namespace thekogans {
     namespace packet {
 
-        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE (
-            PacketFragmentPacket,
-            1,
-            util::SpinLock,
-            16,
-            util::DefaultAllocator::Instance ())
+        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE (PacketFragmentPacket, 1)
 
         void PacketFragmentPacket::Read (
                 const BinHeader & /*header*/,
@@ -52,8 +47,10 @@ namespace thekogans {
         }
 
         void PacketFragmentPacket::Write (pugi::xml_node &node) const {
-            node.append_attribute (ATTR_FRAGMENT_NUMBER).set_value (util::ui64Tostring (fragmentNumber).c_str ());
-            node.append_attribute (ATTR_FRAGMENT_COUNT).set_value (util::ui64Tostring (fragmentCount).c_str ());
+            node.append_attribute (ATTR_FRAGMENT_NUMBER).set_value (
+                util::ui64Tostring (fragmentNumber).c_str ());
+            node.append_attribute (ATTR_FRAGMENT_COUNT).set_value (
+                util::ui64Tostring (fragmentCount).c_str ());
             node.append_child (pugi::node_pcdata).set_value (
                 util::Base64::Encode (
                     fragment.GetReadPtr (),

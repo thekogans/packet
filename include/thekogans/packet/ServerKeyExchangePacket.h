@@ -22,6 +22,7 @@
 #include "thekogans/util/SpinLock.h"
 #include "thekogans/util/Serializable.h"
 #include "thekogans/util/Serializer.h"
+#include "thekogans/crypto/CipherSuite.h"
 #include "thekogans/crypto/KeyExchange.h"
 #include "thekogans/packet/Config.h"
 #include "thekogans/packet/Packet.h"
@@ -47,7 +48,7 @@ namespace thekogans {
         struct _LIB_THEKOGANS_PACKET_DECL ServerKeyExchangePacket : public Packet {
             /// \brief
             /// Pull in Packet dynamic creation machinery.
-            THEKOGANS_UTIL_DECLARE_SERIALIZABLE (ServerKeyExchangePacket, util::SpinLock)
+            THEKOGANS_UTIL_DECLARE_SERIALIZABLE (ServerKeyExchangePacket)
 
             /// \brief
             /// \see{CipherSuite} used to generate the \see{KeyExchange::Params}.
@@ -61,8 +62,10 @@ namespace thekogans {
             /// \param[in] cipherSuite_ \see{CipherSuite} used to generate the \see{KeyExchange::Params}.
             /// \param[in] params_ \see{KeyExchange::Params} used for \see{SymmetricKey} exchange.
             ServerKeyExchangePacket (
-                const std::string &cipherSuite_,
-                crypto::KeyExchange::Params::SharedPtr params_) :
+                const std::string &cipherSuite_ =
+                    crypto::CipherSuite::Strongest.ToString (),
+                crypto::KeyExchange::Params::SharedPtr params_ =
+                    crypto::KeyExchange::Params::SharedPtr ()) :
                 cipherSuite (cipherSuite_),
                 params (params_) {}
 
@@ -73,7 +76,7 @@ namespace thekogans {
             virtual std::size_t Size () const override {
                 return
                     util::Serializer::Size (cipherSuite) +
-                    util::Serializable::Size (*params);
+                    params->GetSize ();
             }
 
             /// \brief

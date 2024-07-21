@@ -31,8 +31,8 @@ namespace thekogans {
 
         void Session::Reset () {
             id = util::GUID::FromRandom ();
-            inboundSequenceNumber = util::GlobalRandomSource::Instance ().Getui64 ();
-            outboundSequenceNumber = util::GlobalRandomSource::Instance ().Getui64 ();
+            inboundSequenceNumber = util::GlobalRandomSource::Instance ()->Getui64 ();
+            outboundSequenceNumber = util::GlobalRandomSource::Instance ()->Getui64 ();
         }
 
     } // namespace packet
