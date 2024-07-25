@@ -122,7 +122,7 @@ namespace thekogans {
 
             /// \brief
             /// ServerKeyExchangePacket is neither copy constructable nor assignable.
-            THEKOGANS_PACKET_DISALLOW_COPY_AND_ASSIGN (ServerKeyExchangePacket)
+            THEKOGANS_UTIL_DISALLOW_COPY_AND_ASSIGN (ServerKeyExchangePacket)
         };
 
     } // namespace packet

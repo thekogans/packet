@@ -117,7 +117,7 @@ namespace thekogans {
 
             /// \brief
             /// PacketFragmentPacket is neither copy constructable nor assignable.
-            THEKOGANS_PACKET_DISALLOW_COPY_AND_ASSIGN (PacketFragmentPacket)
+            THEKOGANS_UTIL_DISALLOW_COPY_AND_ASSIGN (PacketFragmentPacket)
         };
 
     } // namespace packet

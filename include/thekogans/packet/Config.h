@@ -44,13 +44,6 @@
     #define _LIB_THEKOGANS_PACKET_DECL
 #endif // defined (TOOLCHAIN_OS_Windows)
 
-/// \def THEKOGANS_PACKET_DISALLOW_COPY_AND_ASSIGN(type)
-/// A convenient macro to suppress copy construction and assignment.
-#define THEKOGANS_PACKET_DISALLOW_COPY_AND_ASSIGN(type)\
-private:\
-    type (const type &);\
-    type &operator = (const type &);
-
 /// \def THEKOGANS_PACKET
 /// Logging subsystem name.
 #define THEKOGANS_PACKET "thekogans_packet"

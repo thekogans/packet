@@ -121,7 +121,7 @@ namespace thekogans {
 
             /// \brief
             /// ClientKeyExchangePacket is neither copy constructable nor assignable.
-            THEKOGANS_PACKET_DISALLOW_COPY_AND_ASSIGN (ClientKeyExchangePacket)
+            THEKOGANS_UTIL_DISALLOW_COPY_AND_ASSIGN (ClientKeyExchangePacket)
         };
 
     } // namespace packet
