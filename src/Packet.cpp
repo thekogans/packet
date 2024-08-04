@@ -36,7 +36,7 @@ namespace thekogans {
             }
         }
 
-        util::Buffer Packet::Serialize (
+        util::Buffer::SharedPtr Packet::Serialize (
                 crypto::Cipher &cipher,
                 Session *session,
                 bool compress) const {
@@ -65,7 +65,7 @@ namespace thekogans {
                 if (compress) {
                     util::Buffer buffer (util::NetworkEndian, GetSize ());
                     buffer << *this;
-                    plaintext += buffer.Deflate ();
+                    plaintext += *buffer.Deflate ();
                 }
                 else {
                     plaintext << *this;
@@ -85,15 +85,15 @@ namespace thekogans {
                 util::Buffer &ciphertext,
                 crypto::Cipher &cipher,
                 Session *session) {
-            util::Buffer plaintext = cipher.Decrypt (
+            util::Buffer::SharedPtr plaintext = cipher.Decrypt (
                 ciphertext.GetReadPtr (),
                 ciphertext.GetDataAvailableForReading ());
             PlaintextHeader plaintextHeader;
-            plaintext >> plaintextHeader;
-            plaintext.AdvanceReadOffset (plaintextHeader.randomLength);
+            *plaintext >> plaintextHeader;
+            plaintext->AdvanceReadOffset (plaintextHeader.randomLength);
             if (util::Flags8 (plaintextHeader.flags).Test (PlaintextHeader::FLAGS_SESSION_HEADER)) {
                 Session::Header sessionHeader;
-                plaintext >> sessionHeader;
+                *plaintext >> sessionHeader;
                 if (session == 0) {
                     THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
                         "Unable to verify session header (%s, " THEKOGANS_UTIL_UI64_FORMAT ").",
@@ -114,10 +114,10 @@ namespace thekogans {
                 }
             }
             if (plaintextHeader.flags & PlaintextHeader::FLAGS_COMPRESSED) {
-                plaintext = plaintext.Inflate ();
+                plaintext = plaintext->Inflate ();
             }
             Packet::SharedPtr packet;
-            plaintext >> packet;
+            *plaintext >> packet;
             return packet;
         }
 

@@ -27,7 +27,7 @@ namespace thekogans {
         void PacketFragmentPacket::Read (
                 const BinHeader & /*header*/,
                 util::Serializer &serializer) {
-            serializer >> fragmentNumber >> fragmentCount >> fragment;
+            serializer >> fragmentNumber >> fragmentCount >> *fragment;
         }
 
         void PacketFragmentPacket::Write (util::Serializer &serializer) const {
@@ -53,8 +53,8 @@ namespace thekogans {
                 util::ui64Tostring (fragmentCount).c_str ());
             node.append_child (pugi::node_pcdata).set_value (
                 util::Base64::Encode (
-                    fragment.GetReadPtr (),
-                    fragment.GetDataAvailableForReading ()).Tostring ().c_str ());
+                    fragment->GetReadPtr (),
+                    fragment->GetDataAvailableForReading ())->Tostring ().c_str ());
         }
 
         void PacketFragmentPacket::Read (

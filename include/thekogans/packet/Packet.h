@@ -48,7 +48,7 @@ namespace thekogans {
             /// \param[in] session Optional \see{Session} whose header will be baked in
             /// to the serialized packet to help prevent replay attacks.
             /// \param[in] compress true == Compress the packet contents before encrypting.
-            util::Buffer Serialize (
+            util::Buffer::SharedPtr Serialize (
                 crypto::Cipher &cipher,
                 Session *session,
                 bool compress = false) const;

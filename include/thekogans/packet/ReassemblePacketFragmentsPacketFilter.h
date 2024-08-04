@@ -42,7 +42,7 @@ namespace thekogans {
             std::size_t maxCiphertextLength;
             /// \brief
             /// Packet frame endianness.
-            util::Buffer packetFragmentBuffer;
+            util::Buffer::SharedPtr packetFragmentBuffer;
 
         public:
             /// \brief
@@ -53,7 +53,7 @@ namespace thekogans {
                 std::size_t maxCiphertextLength_,
                 util::Endianness endianness = util::NetworkEndian) :
                 maxCiphertextLength (maxCiphertextLength_),
-                packetFragmentBuffer (endianness) {}
+                packetFragmentBuffer (new util::Buffer (endianness)) {}
 
             /// \brief
             /// Called by \see{Tunnel}::HandlePacket to reassemble \see{PacketFragmentPacket}.

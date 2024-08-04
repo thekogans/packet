@@ -21,7 +21,8 @@
 namespace thekogans {
     namespace packet {
 
-        Packet::SharedPtr ReassemblePacketFragmentsPacketFilter::FilterPacket (Packet::SharedPtr packet) {
+        Packet::SharedPtr ReassemblePacketFragmentsPacketFilter::FilterPacket (
+                Packet::SharedPtr packet) {
             if (packet.Get () != 0) {
                 if (packet->Type () == PacketFragmentPacket::TYPE) {
                     PacketFragmentPacket *packetFragment =
@@ -29,18 +30,19 @@ namespace thekogans {
                     // reassemble the fragmented packet.
                     if (packetFragment->fragmentCount > 1) {
                         if (packetFragment->fragmentNumber == 1) {
-                            packetFragmentBuffer.Resize (packetFragment->fragmentCount * maxCiphertextLength);
+                            packetFragmentBuffer->Resize (
+                                packetFragment->fragmentCount * maxCiphertextLength);
                         }
-                        packetFragmentBuffer.Write (
-                            packetFragment->fragment.GetReadPtr (),
-                            packetFragment->fragment.GetDataAvailableForReading ());
+                        packetFragmentBuffer->Write (
+                            packetFragment->fragment->GetReadPtr (),
+                            packetFragment->fragment->GetDataAvailableForReading ());
                         if (packetFragment->fragmentNumber == packetFragment->fragmentCount) {
-                            packetFragment->fragment = std::move (packetFragmentBuffer);
+                            packetFragment->fragment = packetFragmentBuffer;
                         }
                     }
                     Packet::SharedPtr packet;
                     if (packetFragment->fragmentNumber == packetFragment->fragmentCount) {
-                        packetFragment->fragment >> packet;
+                        *packetFragment->fragment >> packet;
                     }
                     return packet;
                 }
