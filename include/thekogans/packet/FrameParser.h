@@ -183,7 +183,7 @@ namespace thekogans {
             crypto::FrameHeader frameHeader;
             /// \brief
             /// Incrementally parsed payload.
-            util::Buffer ciphertext;
+            util::Buffer::SharedPtr ciphertext;
             /// \brief
             /// \see{crypto::Cipher} corresponding to frameHeader.keyId.
             crypto::Cipher::SharedPtr cipher;
@@ -199,7 +199,6 @@ namespace thekogans {
                 std::size_t maxCiphertextLength_ = DEFAULT_MAX_CIPHERTEXT_LENGTH) :
                 maxCiphertextLength (maxCiphertextLength_),
                 state (STATE_FRAME_HEADER),
-                ciphertext (util::NetworkEndian),
                 frameHeaderParser (frameHeader) {}
 
             /// \brief
@@ -215,7 +214,7 @@ namespace thekogans {
             /// \param[out] packetHandler PacketHandler api is used to
             /// process incoming packets.
             void HandleBuffer (
-                util::Buffer buffer,
+                util::Buffer::SharedPtr buffer,
                 PacketHandler &packetHandler);
 
         private:
