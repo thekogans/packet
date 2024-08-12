@@ -29,7 +29,7 @@ namespace thekogans {
                 util::ui8 randomLength;
                 do {
                     randomLength = (util::ui8)(
-                        util::GlobalRandomSource::Instance ()->Getui32 () %
+                        util::RandomSource::Instance ()->Getui32 () %
                         (PlaintextHeader::MAX_RANDOM_LENGTH + 1));
                 } while (randomLength == 0);
                 return randomLength;
@@ -56,7 +56,7 @@ namespace thekogans {
             }
             plaintext << PlaintextHeader (randomLength, flags);
             if (plaintext.AdvanceWriteOffset (
-                    util::GlobalRandomSource::Instance ()->GetBytes (
+                    util::RandomSource::Instance ()->GetBytes (
                         plaintext.GetWritePtr (),
                         randomLength)) == randomLength) {
                 if (session != 0) {
