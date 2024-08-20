@@ -65,7 +65,9 @@ namespace thekogans {
                 if (compress) {
                     util::Buffer buffer (util::NetworkEndian, GetSize ());
                     buffer << *this;
-                    plaintext += *buffer.Deflate ();
+                    util::Buffer::SharedPtr deflated = buffer.Deflate ();
+                    plaintext.Write (
+                        deflated->GetReadPtr (), deflated->GetDataAvailableForReading ());
                 }
                 else {
                     plaintext << *this;
@@ -91,7 +93,8 @@ namespace thekogans {
             PlaintextHeader plaintextHeader;
             *plaintext >> plaintextHeader;
             plaintext->AdvanceReadOffset (plaintextHeader.randomLength);
-            if (util::Flags8 (plaintextHeader.flags).Test (PlaintextHeader::FLAGS_SESSION_HEADER)) {
+            if (util::Flags8 (plaintextHeader.flags).Test (
+                    PlaintextHeader::FLAGS_SESSION_HEADER)) {
                 Session::Header sessionHeader;
                 *plaintext >> sessionHeader;
                 if (session == 0) {
@@ -113,7 +116,8 @@ namespace thekogans {
                         session->outboundSequenceNumber);
                 }
             }
-            if (plaintextHeader.flags & PlaintextHeader::FLAGS_COMPRESSED) {
+            if (util::Flags8 (plaintextHeader.flags).Test (
+                    PlaintextHeader::FLAGS_COMPRESSED)) {
                 plaintext = plaintext->Inflate ();
             }
             Packet::SharedPtr packet;
