@@ -19,10 +19,23 @@
 #include "thekogans/util/Exception.h"
 #include "thekogans/util/Flags.h"
 #include "thekogans/packet/PlaintextHeader.h"
+#if defined (THEKOGANS_PACKET_TYPE_Static)
+    #include "thekogans/packet/ClientKeyExchangePacket.h"
+    #include "thekogans/packet/ServerKeyExchangePacket.h"
+    #include "thekogans/packet/PacketFragmentPacket.h"
+#endif // defined (THEKOGANS_PACKET_TYPE_Static)
 #include "thekogans/packet/Packet.h"
 
 namespace thekogans {
     namespace packet {
+
+    #if defined (THEKOGANS_PACKET_TYPE_Static)
+        void Packet::StaticInit () {
+            ClientKeyExchangePacket::StaticInit ();
+            ServerKeyExchangePacket::StaticInit ();
+            PacketFragmentPacket::StaticInit ();
+        }
+    #endif // defined (THEKOGANS_PACKET_TYPE_Static)
 
         namespace {
             inline util::ui8 GetRandomLength () {

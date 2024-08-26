@@ -22,7 +22,6 @@
     <cpp_header>$(organization)/$(project_directory)/Packet.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/PacketFilter.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/PacketFragmentPacket.h</cpp_header>
-    <cpp_header>$(organization)/$(project_directory)/Packets.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/PlaintextHeader.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/ReassemblePacketFragmentsPacketFilter.h</cpp_header>
     <cpp_header>$(organization)/$(project_directory)/ServerKeyExchangePacket.h</cpp_header>
@@ -31,10 +30,10 @@
   </cpp_headers>
   <cpp_sources prefix = "src">
     <cpp_source>ClientKeyExchangePacket.cpp</cpp_source>
+    <cpp_source>FragmentPacketPacketFilter.cpp</cpp_source>
     <cpp_source>FrameParser.cpp</cpp_source>
     <cpp_source>Packet.cpp</cpp_source>
     <cpp_source>PacketFragmentPacket.cpp</cpp_source>
-    <cpp_source>Packets.cpp</cpp_source>
     <cpp_source>ReassemblePacketFragmentsPacketFilter.cpp</cpp_source>
     <cpp_source>ServerKeyExchangePacket.cpp</cpp_source>
     <cpp_source>Session.cpp</cpp_source>

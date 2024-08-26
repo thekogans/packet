@@ -23,7 +23,7 @@ namespace thekogans {
 
         Packet::SharedPtr ReassemblePacketFragmentsPacketFilter::FilterPacket (
                 Packet::SharedPtr packet) {
-            if (packet.Get () != 0) {
+            if (packet != nullptr) {
                 if (packet->Type () == PacketFragmentPacket::TYPE) {
                     PacketFragmentPacket *packetFragment =
                         static_cast<PacketFragmentPacket *> (packet.Get ());

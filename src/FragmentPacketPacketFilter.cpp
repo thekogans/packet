@@ -25,8 +25,8 @@ namespace thekogans {
     namespace packet {
 
         Packet::SharedPtr FragmentPacketPacketFilter::FilterPacket (Packet::SharedPtr packet) {
-            if (packet.Get () != 0) {
-                std::size_t packetSize = util::Serializable::Size (*packet);
+            if (packet != nullptr) {
+                std::size_t packetSize = packet->GetSize ();
                 std::size_t fragmentSize =
                     maxCiphertextLength -
                     Packet::GetMaxFramingOverhead (packet->GetType (), maxCiphertextLength);
@@ -37,13 +37,15 @@ namespace thekogans {
                     if ((packetSize % fragmentSize) > 0) {
                         ++fragmentCount;
                     }
-                    util::Buffer buffer = packet->Serialize ();
-                    for (std::size_t fragmentNumber = 1; fragmentNumber <= fragmentCount; ++fragmentNumber) {
-                        util::Buffer fragment (util::NetworkEndian, fragmentSize);
-                        fragment.AdvanceWriteOffset (
-                            buffer.Read (
-                                fragment.GetWritePtr (),
-                                fragment.GetDataAvailableForWriting ()));
+                    util::Buffer::SharedPtr buffer = packet->Serialize ();
+                    for (std::size_t fragmentNumber = 1;
+                            fragmentNumber <= fragmentCount; ++fragmentNumber) {
+                        util::Buffer::SharedPtr fragment (
+                            new util::Buffer (util::NetworkEndian, fragmentSize));
+                        fragment->AdvanceWriteOffset (
+                            buffer->Read (
+                                fragment->GetWritePtr (),
+                                fragment->GetDataAvailableForWriting ()));
                         // NOTE: Injecting new packets in to the SendPacket pipeline
                         // will eventually call our filter recursively. That's okay
                         // as the if above will fail and the new packet will continue
@@ -53,7 +55,7 @@ namespace thekogans {
                                 new PacketFragmentPacket (
                                     fragmentNumber,
                                     fragmentCount,
-                                    std::move (fragment))));
+                                    fragment)));
                     }
                     // Since we've consumed the given packet, discard it.
                     return Packet::SharedPtr ();

@@ -47,7 +47,7 @@ namespace thekogans {
                         case STATE_FRAME_HEADER: {
                             if (frameHeaderParser.ParseValue (*buffer)) {
                                 cipher = packetHandler.GetCipherForKeyId (frameHeader.keyId);
-                                if (cipher.Get () != 0) {
+                                if (cipher != nullptr) {
                                     if (frameHeader.ciphertextLength > 0 &&
                                             frameHeader.ciphertextLength <= maxCiphertextLength) {
                                         THEKOGANS_UTIL_TRY {

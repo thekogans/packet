@@ -41,6 +41,14 @@ namespace thekogans {
             /// Declare \see{RefCounted} pointers.
             THEKOGANS_UTIL_DECLARE_REF_COUNTED_POINTERS (Packet)
 
+        #if defined (THEKOGANS_PACKET_TYPE_Static)
+            /// \brief
+            /// Because the thekogans_packet library uses dynamic initialization, when
+            /// using it in static builds call this method to have the library explicitly
+            /// include all internal packet types.
+            static void StaticInit ();
+        #endif // defined (THEKOGANS_PACKET_TYPE_Static)
+
             /// \brief
             /// See \see{FrameParser} to learn about the wire structure created
             /// by this method.
