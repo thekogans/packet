@@ -45,11 +45,14 @@ namespace thekogans {
             util::ui8 randomLength;
             enum {
                 /// \brief
+                /// The packet is encrypted.
+                FLAGS_ENCRYPTED = 1,
+                /// \brief
                 /// A \see{Session::Header} follows the random vector.
-                FLAGS_SESSION_HEADER = 1,
+                FLAGS_SESSION_HEADER = 2,
                 /// \brief
                 /// \see{Packet} payload is compressed.
-                FLAGS_COMPRESSED = 2
+                FLAGS_COMPRESSED = 4
             };
             /// \brief
             /// \see{Packet} flags.

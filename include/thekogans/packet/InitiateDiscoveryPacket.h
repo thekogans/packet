@@ -15,76 +15,63 @@
 // You should have received a copy of the GNU General Public License
 // along with libthekogans_packet. If not, see <http://www.gnu.org/licenses/>.
 
-#if !defined (__thekogans_packet_ClientKeyExchangePacket_h)
-#define __thekogans_packet_ClientKeyExchangePacket_h
+#if !defined (__thekogans_packet_InitiateDiscoveryPacket_h)
+#define __thekogans_packet_InitiateDiscoveryPacket_h
 
 #include <string>
 #include <thekogans/util/Serializer.h>
-#include <thekogans/crypto/KeyExchange.h>
 #include "thekogans/packet/Config.h"
 #include "thekogans/packet/Packet.h"
 
 namespace thekogans {
     namespace packet {
 
-        /// \struct ClientKeyExchangePacket ClientKeyExchangePacket.h thekogans/packet/ClientKeyExchangePacket.h
+        /// \struct InitiateDiscoveryPacket InitiateDiscoveryPacket.h thekogans/packet/InitiateDiscoveryPacket.h
         ///
         /// \brief
-        /// ClientKeyExchangePacket packets are used to initiate \see{crypto::SymmetricKey} exchange. Upon
-        /// receipt, the server uses the enclosed \see{CipherSuite} and \see{KeyExchange::Params} to create
-        /// it's side of the shared secret. It then packages it's \see{KeyExchange::Params} in the
-        /// \see{ServerKeyExchangePacket} packet and sends it back to the client to complete the key exchange.
-        ///
-        /// The following example illustrates it's use:
-        ///
-        /// \code{.cpp}
-        /// using namespace thekogans;
-        /// \endcode
+        /// Encapsulates data that makes up the initiate discovery packet.
+        /// InitiateDiscoveryPacket packets are used by a master* host to
+        /// alert all drones to initiate local sub-net peer discovery. Upon
+        /// receipt of this packet, a drone will broadcast a \see{BeaconPacket}
+        /// and wait for pings. Upon arrival of a ping (\see{PingPacket}), the
+        /// drone will attempt to connect to it's peer using an ordinal based
+        /// graph creation algorithm.
+        /// * See \see{Device}'s implementation to learn that a master is a
+        /// host where \see{Device::InitiateDiscovery} is called.
 
-        struct _LIB_THEKOGANS_PACKET_DECL ClientKeyExchangePacket : public Packet {
+        struct _LIB_THEKOGANS_PACKET_DECL InitiateDiscoveryPacket : public Packet {
             /// \brief
-            /// Pull in \see{Packet} dynamic creation machinery.
-            THEKOGANS_UTIL_DECLARE_SERIALIZABLE (ClientKeyExchangePacket)
+            /// Pull in Packet dynamic creation machinery.
+            THEKOGANS_UTIL_DECLARE_SERIALIZABLE (InitiateDiscoveryPacket)
 
             /// \brief
-            /// \see{CipherSuite} used to generate the \see{KeyExchange::Params}.
-            std::string cipherSuite;
-            /// \brief
-            /// \see{KeyExchange::Params} used for \see{SymmetricKey} exchange.
-            crypto::KeyExchange::Params::SharedPtr params;
+            /// Host id.
+            std::string hostId;
 
             /// \brief
             /// ctor.
-            /// \param[in] cipherSuite_ \see{CipherSuite} used to generate the \see{KeyExchange::Params}.
-            /// \param[in] params_ \see{KeyExchange::Params} used for \see{SymmetricKey} exchange.
-            ClientKeyExchangePacket (
-                const std::string &cipherSuite_ =
-                    crypto::CipherSuite::Strongest.ToString (),
-                crypto::KeyExchange::Params::SharedPtr params_ =
-                    crypto::KeyExchange::Params::SharedPtr ()) :
-                cipherSuite (cipherSuite_),
-                params (params_) {}
+            /// \param[in] hostId_ Host id.
+            InitiateDiscoveryPacket (const std::string &hostId_) :
+                hostId (hostId_) {}
 
         protected:
             /// \brief
             /// Return serialized packet size.
             /// \return Serialized packet size.
             virtual std::size_t Size () const override {
-                return
-                    util::Serializer::Size (cipherSuite) +
-                    params->GetSize ();
+                return util::Serializer::Size (hostId);
             }
 
             /// \brief
-            /// De-serialize the packet.
-            /// \param[in] header Packet header.
-            /// \param[in] serializer Packet contents.
+            /// Write the serializable from the given serializer.
+            /// \param[in] header
+            /// \param[in] serializer Serializer to read the serializable from.
             virtual void Read (
                 const BinHeader & /*header*/,
                 util::Serializer &serializer) override;
             /// \brief
-            /// Serialize the packet.
-            /// \param[out] serializer Packet contents.
+            /// Write the serializable to the given serializer.
+            /// \param[out] serializer Serializer to write the serializable to.
             virtual void Write (util::Serializer &serializer) const override;
 
             /// \brief
@@ -110,11 +97,15 @@ namespace thekogans {
             virtual void Write (util::JSON::Object &object) const override;
 
             /// \brief
-            /// ClientKeyExchangePacket is neither copy constructable nor assignable.
-            THEKOGANS_UTIL_DISALLOW_COPY_AND_ASSIGN (ClientKeyExchangePacket)
+            /// InitiateDiscoveryPacket is neither copy constructable nor assignable.
+            THEKOGANS_PACKET_DISALLOW_COPY_AND_ASSIGN (InitiateDiscoveryPacket)
         };
+
+        /// \brief
+        /// Implement InitiateDiscoveryPacket extraction operators.
+        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_EXTRACTION_OPERATORS (InitiateDiscoveryPacket)
 
     } // namespace packet
 } // namespace thekogans
 
-#endif // !defined (__thekogans_packet_ClientKeyExchangePacket_h)
+#endif // !defined (__thekogans_packet_InitiateDiscoveryPacket_h)

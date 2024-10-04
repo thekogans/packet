@@ -15,77 +15,59 @@
 // You should have received a copy of the GNU General Public License
 // along with libthekogans_packet. If not, see <http://www.gnu.org/licenses/>.
 
-#if !defined (__thekogans_packet_ServerKeyExchangePacket_h)
-#define __thekogans_packet_ServerKeyExchangePacket_h
+#if !defined (__thekogans_packet_BeaconPacket_h)
+#define __thekogans_packet_BeaconPacket_h
 
 #include <string>
-#include "thekogans/crypto/CipherSuite.h"
-#include "thekogans/crypto/KeyExchange.h"
+#include "thekogans/util/Serializer.h"
 #include "thekogans/packet/Config.h"
 #include "thekogans/packet/Packet.h"
 
 namespace thekogans {
     namespace packet {
 
-        /// \struct ServerKeyExchangePacket ServerKeyExchangePacket.h thekogans/packet/ServerKeyExchangePacket.h
+        /// \struct BeaconPacket BeaconPacket.h thekogans/packet/BeaconPacket.h
         ///
         /// \brief
-        /// ServerKeyExchangePacket packets are used by the server to complete the \see{crypto::SymmetricKey}
-        /// key exchange started by the client (using (see{ClientKeyExchangePacket}). After receiving the
-        /// \see{ClientKeyExchangePacket} packet from the client, the server uses it's params to create it's
-        /// \see{SymmetricKey}. It sends it's \see{KeyExchange::Params} public key back to the client to complete
-        /// the key exchange.
-        ///
-        /// The following example illustrates it's use:
-        ///
-        /// \code{.cpp}
-        /// using namespace thekogans;
-        /// \endcode
+        /// Encapsulates data that makes up the beacon packet. Beacon packets
+        /// are used to discover peers on the local sub-net. Upon receipt of a
+        /// beacon, the host will unicast a \see{PingPacket} and either wait
+        /// to be connected to or, initiate a connection (if it's channel ordinal
+        /// is lower then the peer that sent the \see{PingPacket} packet).
 
-        struct _LIB_THEKOGANS_PACKET_DECL ServerKeyExchangePacket : public Packet {
+        struct _LIB_THEKOGANS_PACKET_DECL BeaconPacket : public Packet {
             /// \brief
             /// Pull in Packet dynamic creation machinery.
-            THEKOGANS_UTIL_DECLARE_SERIALIZABLE (ServerKeyExchangePacket)
+            THEKOGANS_UTIL_DECLARE_SERIALIZABLE (BeaconPacket)
 
             /// \brief
-            /// \see{CipherSuite} used to generate the \see{KeyExchange::Params}.
-            std::string cipherSuite;
-            /// \brief
-            /// \see{KeyExchange::Params} used for \see{SymmetricKey} exchange.
-            crypto::KeyExchange::Params::SharedPtr params;
+            /// Host id.
+            std::string hostId;
 
             /// \brief
             /// ctor.
-            /// \param[in] cipherSuite_ \see{CipherSuite} used to generate the \see{KeyExchange::Params}.
-            /// \param[in] params_ \see{KeyExchange::Params} used for \see{SymmetricKey} exchange.
-            ServerKeyExchangePacket (
-                const std::string &cipherSuite_ =
-                    crypto::CipherSuite::Strongest.ToString (),
-                crypto::KeyExchange::Params::SharedPtr params_ =
-                    crypto::KeyExchange::Params::SharedPtr ()) :
-                cipherSuite (cipherSuite_),
-                params (params_) {}
+            /// \param[in] hostId_ Peer host id.
+            BeaconPacket (const std::string &hostId_) :
+                hostId (hostId_) {}
 
         protected:
             /// \brief
             /// Return serialized packet size.
             /// \return Serialized packet size.
             virtual std::size_t Size () const override {
-                return
-                    util::Serializer::Size (cipherSuite) +
-                    params->GetSize ();
+                return util::Serializer::Size (hostId);
             }
 
             /// \brief
-            /// De-serialize the packet.
-            /// \param[in] header Packet header.
-            /// \param[in] serializer Packet contents.
+            /// Write the serializable from the given serializer.
+            /// \param[in] header
+            /// \param[in] serializer Serializer to read the serializable from.
             virtual void Read (
                 const BinHeader & /*header*/,
                 util::Serializer &serializer) override;
             /// \brief
-            /// Serialize the packet.
-            /// \param[out] serializer Packet contents.
+            /// Write the serializable to the given serializer.
+            /// \param[out] serializer Serializer to write the serializable to.
             virtual void Write (util::Serializer &serializer) const override;
 
             /// \brief
@@ -111,11 +93,15 @@ namespace thekogans {
             virtual void Write (util::JSON::Object &object) const override;
 
             /// \brief
-            /// ServerKeyExchangePacket is neither copy constructable nor assignable.
-            THEKOGANS_UTIL_DISALLOW_COPY_AND_ASSIGN (ServerKeyExchangePacket)
+            /// BeaconPacket is neither copy constructable nor assignable.
+            THEKOGANS_UTIL_DISALLOW_COPY_AND_ASSIGN (BeaconPacket)
         };
+
+        /// \brief
+        /// Implement BeaconPacket extraction operators.
+        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_EXTRACTION_OPERATORS (BeaconPacket)
 
     } // namespace packet
 } // namespace thekogans
 
-#endif // !defined (__thekogans_packet_ServerKeyExchangePacket_h)
+#endif // !defined (__thekogans_packet_BeaconPacket_h)

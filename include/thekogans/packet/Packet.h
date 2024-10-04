@@ -38,8 +38,8 @@ namespace thekogans {
 
         struct _LIB_THEKOGANS_PACKET_DECL Packet : public util::Serializable {
             /// \brief
-            /// Declare \see{RefCounted} pointers.
-            THEKOGANS_UTIL_DECLARE_REF_COUNTED_POINTERS (Packet)
+            /// Declare \see{DynamicCreatable} .
+            THEKOGANS_UTIL_DECLARE_DYNAMIC_CREATABLE_BASE (Packet)
 
         #if defined (THEKOGANS_PACKET_TYPE_Static)
             /// \brief
@@ -57,8 +57,8 @@ namespace thekogans {
             /// to the serialized packet to help prevent replay attacks.
             /// \param[in] compress true == Compress the packet contents before encrypting.
             util::Buffer::SharedPtr Serialize (
-                crypto::Cipher &cipher,
-                Session *session,
+                crypto::Cipher::SharedPtr cipher = nullptr,
+                Session *session = nullptr,
                 bool compress = false) const;
 
             /// \brief
@@ -69,11 +69,12 @@ namespace thekogans {
             /// \param[in] ciphertext Serialized packet minus the leading \see{FrameHeader}.
             /// \param[in] cipher \see{crypto::Cipher} corresponding to the \see{FrameHeader::keyId}
             /// used to encrypt the payload.
-            /// \param[in] session Optional \see{Session} to validate the baked in \see{Session::Header}.
+            /// \param[in] session Optional \see{Session} to validate the
+            /// baked in \see{Session::Header}.
             static SharedPtr Deserialize (
-                util::Buffer &ciphertext,
-                crypto::Cipher &cipher,
-                Session *session);
+                util::Buffer::SharedPtr frame,
+                crypto::Cipher::SharedPtr cipher = nullptr,
+                Session *session = nullptr);
 
             /// \brief
             /// Return the maximum framing overhead needed by Serialize above.

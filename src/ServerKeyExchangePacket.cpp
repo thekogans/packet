@@ -32,8 +32,10 @@ namespace thekogans {
             serializer << cipherSuite << *params;
         }
 
-        const char * const ServerKeyExchangePacket::ATTR_CIPHER_SUITE = "CipherSuite";
-        const char * const ServerKeyExchangePacket::TAG_PARAMS = "Params";
+        namespace {
+            const char * const ATTR_CIPHER_SUITE = "CipherSuite";
+            const char * const TAG_PARAMS = "Params";
+        }
 
         void ServerKeyExchangePacket::Read (
                 const TextHeader & /*header*/,

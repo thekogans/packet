@@ -25,27 +25,14 @@ namespace thekogans {
     namespace packet {
 
         void FrameParser::HandleBuffer (
-                util::Buffer::SharedPtr buffer,
+                util::Buffer::SharedPtr buffer_,
                 PacketHandler &packetHandler) {
             if (buffer != nullptr) {
-                struct BufferEndiannessSetter {
-                    util::Buffer::SharedPtr buffer;
-                    util::Endianness endianness;
-                    BufferEndiannessSetter (
-                            util::Buffer::SharedPtr buffer_,
-                            util::Endianness endianness_) :
-                        buffer (buffer_),
-                        endianness (endianness_) {
-                        std::swap (buffer->endianness, endianness);
-                    }
-                    ~BufferEndiannessSetter () {
-                        std::swap (buffer->endianness, endianness);
-                    }
-                } bufferEndiannessSetter (buffer, util::NetworkEndian);
-                while (!buffer->IsEmpty ()) {
+                util::TenantReadBuffer buffer (*buffer_);
+                while (!buffer.IsEmpty ()) {
                     switch (state) {
                         case STATE_FRAME_HEADER: {
-                            if (frameHeaderParser.ParseValue (*buffer)) {
+                            if (frameHeaderParser.ParseValue (buffer)) {
                                 cipher = packetHandler.GetCipherForKeyId (frameHeader.keyId);
                                 if (cipher != nullptr) {
                                     if (frameHeader.ciphertextLength > 0 &&
@@ -80,7 +67,7 @@ namespace thekogans {
                         }
                         case STATE_CIPHERTEXT: {
                             ciphertext->AdvanceWriteOffset (
-                                buffer->Read (
+                                buffer.Read (
                                     ciphertext->GetWritePtr (),
                                     ciphertext->GetDataAvailableForWriting ()));
                             if (ciphertext->IsFull ()) {

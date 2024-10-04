@@ -18,11 +18,20 @@
 #include "thekogans/util/RandomSource.h"
 #include "thekogans/util/Exception.h"
 #include "thekogans/util/Flags.h"
+#include "thekogans/crypto/FrameHeader.h"
 #include "thekogans/packet/PlaintextHeader.h"
 #if defined (THEKOGANS_PACKET_TYPE_Static)
+    #include "thekogans/packet/InitiateDiscoveryPacket.h"
+    #include "thekogans/packet/BeaconPacket.h"
+    #include "thekogans/packet/PingPacket.h"
+    #include "thekogans/packet/ClientHelloPacket.h"
+    #include "thekogans/packet/ServerHelloPacket.h"
+    #include "thekogans/packet/PromoteConnectionPacket.h"
     #include "thekogans/packet/ClientKeyExchangePacket.h"
     #include "thekogans/packet/ServerKeyExchangePacket.h"
     #include "thekogans/packet/PacketFragmentPacket.h"
+    #include "thekogans/packet/HeartbeatPacket.h"
+    #include "thekogans/packet/DataPacket.h"
 #endif // defined (THEKOGANS_PACKET_TYPE_Static)
 #include "thekogans/packet/Packet.h"
 
@@ -31,9 +40,17 @@ namespace thekogans {
 
     #if defined (THEKOGANS_PACKET_TYPE_Static)
         void Packet::StaticInit () {
+            InitiateDiscoveryPacket::StaticInit ();
+            BeaconPacket::StaticInit ();
+            PingPacket::StaticInit ();
+            ClientHelloPacket::StaticInit ();
+            ServerHelloPacket::StaticInit ();
+            PromoteConnectionPacket::StaticInit ();
             ClientKeyExchangePacket::StaticInit ();
             ServerKeyExchangePacket::StaticInit ();
             PacketFragmentPacket::StaticInit ();
+            HeartbeatPacket::StaticInit ();
+            DataPacket::StaticInit ();
         }
     #endif // defined (THEKOGANS_PACKET_TYPE_Static)
 
@@ -50,59 +67,75 @@ namespace thekogans {
         }
 
         util::Buffer::SharedPtr Packet::Serialize (
-                crypto::Cipher &cipher,
+                crypto::Cipher::SharedPtr cipher,
                 Session *session,
                 bool compress) const {
-            util::ui8 randomLength = GetRandomLength ();
-            util::Buffer plaintext (
-                util::NetworkEndian,
-                PlaintextHeader::SIZE +
-                randomLength +
-                (session != 0 ? Session::Header::SIZE : 0) +
-                GetSize ());
+            util::ui8 randomLength = cipher != nullptr ? GetRandomLength () : 0;
+            util::NetworkBuffer::SharedPtr plaintext (
+                new util::Buffer (
+                    cipher == nullptr ? crypto::FrameHeader::SIZE : 0 +
+                    PlaintextHeader::SIZE +
+                    randomLength +
+                    (session != nullptr ? Session::Header::SIZE : 0) +
+                    GetSize ()));
+            if (cipher == nullptr) {
+                *plaintext << crypto::FrameHeader (crypto::ID::Empty, 0);
+            }
             util::ui8 flags = 0;
-            if (session != 0) {
+            if (cipher != nullptr) {
+                flags |= PlaintextHeader::FLAGS_ENCRYPTED;
+            }
+            if (session != nullptr) {
                 flags |= PlaintextHeader::FLAGS_SESSION_HEADER;
             }
             if (compress) {
                 flags |= PlaintextHeader::FLAGS_COMPRESSED;
             }
-            plaintext << PlaintextHeader (randomLength, flags);
-            if (plaintext.AdvanceWriteOffset (
+            *plaintext << PlaintextHeader (randomLength, flags);
+            if (randomLength > 0) {
+                plaintext->AdvanceWriteOffset (
                     util::RandomSource::Instance ()->GetBytes (
-                        plaintext.GetWritePtr (),
-                        randomLength)) == randomLength) {
-                if (session != 0) {
-                    plaintext << session->GetOutboundHeader ();
-                }
-                if (compress) {
-                    util::Buffer buffer (util::NetworkEndian, GetSize ());
-                    buffer << *this;
-                    util::Buffer::SharedPtr deflated = buffer.Deflate ();
-                    plaintext.Write (
-                        deflated->GetReadPtr (), deflated->GetDataAvailableForReading ());
-                }
-                else {
-                    plaintext << *this;
-                }
-                return cipher.EncryptAndFrame (
-                    plaintext.GetReadPtr (),
-                    plaintext.GetDataAvailableForReading ());
+                        plaintext->GetWritePtr (),
+                        randomLength));
+            }
+            if (session != nullptr) {
+                plaintext << session->GetOutboundHeader ();
+            }
+            if (compress) {
+                util::Buffer buffer (util::NetworkEndian, GetSize ());
+                buffer << *this;
+                util::Buffer::SharedPtr deflated = buffer.Deflate ();
+                plaintext->Write (
+                    deflated->GetReadPtr (), deflated->GetDataAvailableForReading ());
             }
             else {
-                THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
-                    "Unable to get %u random bytes.",
-                    randomLength);
+                plaintext << *this;
+            }
+            if (cipher != nullptr) {
+                return cipher->EncryptAndFrame (
+                    plaintext->GetReadPtr (),
+                    plaintext->GetDataAvailableForReading ());
+            }
+            else {
+                util::TenantWriteBuffer buffer (
+                    plaintext->endianness,
+                    plaintext->data,
+                    crypto::FrameHeader::SIZE);
+                buffer << crypto::FrameHeader (
+                    crypto::ID::Empty,
+                    plaintext->GetDataAvailableForReading () - crypto::FrameHeader::SIZE);
+                return plaintext;
             }
         }
 
         Packet::SharedPtr Packet::Deserialize (
-                util::Buffer &ciphertext,
-                crypto::Cipher &cipher,
+                util::Buffer::SharedPtr frame,
+                crypto::Cipher::SharedPtr cipher,
                 Session *session) {
-            util::Buffer::SharedPtr plaintext = cipher.Decrypt (
-                ciphertext.GetReadPtr (),
-                ciphertext.GetDataAvailableForReading ());
+            util::Buffer::SharedPtr plaintext = cipher != nullptr ?
+                cipher->Decrypt (
+                    frame->GetReadPtr (),
+                    frame->GetDataAvailableForReading ()) : frame;
             PlaintextHeader plaintextHeader;
             *plaintext >> plaintextHeader;
             plaintext->AdvanceReadOffset (plaintextHeader.randomLength);
@@ -110,7 +143,7 @@ namespace thekogans {
                     PlaintextHeader::FLAGS_SESSION_HEADER)) {
                 Session::Header sessionHeader;
                 *plaintext >> sessionHeader;
-                if (session == 0) {
+                if (session == nullptr) {
                     THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
                         "Unable to verify session header (%s, " THEKOGANS_UTIL_UI64_FORMAT ").",
                         sessionHeader.id.ToString ().c_str (),
