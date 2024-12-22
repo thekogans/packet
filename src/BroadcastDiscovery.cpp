@@ -86,39 +86,39 @@ namespace thekogans {
                         const std::atomic<bool> & /*done*/) {
                     crypto::FrameHeader frameHeader;
                     *buffer >> frameHeader;
-                    crypto::Cipher::SharedPtr cipher = keyRing->GetCipher (frameHeader.keyId);
-                    if (cipher != nullptr) {
-                        packet::Packet::SharedPtr packet =
-                            packet::Packet::Deserialize (*buffer, *cipher, 0);
-                        if (packet != nullptr) {
-                            if (packet->Type () == InitiateDiscoveryPacket::TYPE) {
-                                BroadcastPacket (
-                                    udpSocket,
-                                    BeaconPacket (
+                    packet::Packet::SharedPtr packet =
+                        packet::Packet::Deserialize (
+                            buffer,
+                            keyRing->GetCipher (frameHeader.keyId),
+                            nullptr);
+                    if (packet != nullptr) {
+                        if (packet->Type () == InitiateDiscoveryPacket::TYPE) {
+                            BroadcastPacket (
+                                udpSocket,
+                                BeaconPacket (
+                                    util::SystemInfo::Instance ()->GetHostName ()).Serialize (
+                                        cipher, nullptr));
+                        }
+                        else if (packet->Type () == BeaconPacket::TYPE) {
+                            BeaconPacket *beacon =
+                                static_cast<BeaconPacket *> (packet.Get ());
+                            if (beacon->hostId != util::SystemInfo::Instance ()->GetHostName ()) {
+                                udpSocket->WriteTo (
+                                    PingPacket (
                                         util::SystemInfo::Instance ()->GetHostName ()).Serialize (
-                                            cipher, 0));
+                                            cipher, 0),
+                                    from);
                             }
-                            else if (packet->Type () == BeaconPacket::TYPE) {
-                                BeaconPacket *beacon =
-                                    static_cast<BeaconPacket *> (packet.Get ());
-                                if (beacon->hostId != util::SystemInfo::Instance ()->GetHostName ()) {
-                                    udpSocket->WriteTo (
-                                        PingPacket (
-                                            util::SystemInfo::Instance ()->GetHostName ()).Serialize (
-                                                cipher, 0),
-                                        from);
-                                }
-                            }
-                            else if (packet->Type () == PingPacket::TYPE) {
-                                PingPacket *ping = static_cast<PingPacket *> (packet.Get ());
-                                BroadcastDiscovery::Instance ()->Produce (
-                                    std::bind (
-                                        &DiscoveryEvents::OnDiscoveryPeerDiscovered,
-                                        std::placeholders::_1,
-                                        ping.hostId,
-                                        ping.port,
-                                        from));
-                            }
+                        }
+                        else if (packet->Type () == PingPacket::TYPE) {
+                            PingPacket *ping = static_cast<PingPacket *> (packet.Get ());
+                            BroadcastDiscovery::Instance ()->Produce (
+                                std::bind (
+                                    &DiscoveryEvents::OnDiscoveryPeerDiscovered,
+                                    std::placeholders::_1,
+                                    ping.hostId,
+                                    ping.port,
+                                    from));
                         }
                     }
                 }
