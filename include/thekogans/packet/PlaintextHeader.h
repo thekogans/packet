@@ -34,36 +34,29 @@ namespace thekogans {
         /// provides flags used in \see{Packet} precessing.
 
         struct _LIB_THEKOGANS_PACKET_DECL PlaintextHeader {
-            enum {
-                /// \brief
-                /// Every payload begins with a random length random sequence
-                /// to thwart histogram analysis and known plain-text attacks.
-                MAX_RANDOM_LENGTH = 100
-            };
+            /// \brief
+            /// Every payload begins with a random length random sequence
+            /// to thwart histogram analysis and known plain-text attacks.
+            static const util::ui8 MAX_RANDOM_LENGTH = 100;
             /// \brief
             /// Random vector length.
             util::ui8 randomLength;
-            enum {
-                /// \brief
-                /// The packet is encrypted.
-                FLAGS_ENCRYPTED = 1,
-                /// \brief
-                /// A \see{Session::Header} follows the random vector.
-                FLAGS_SESSION_HEADER = 2,
-                /// \brief
-                /// \see{Packet} payload is compressed.
-                FLAGS_COMPRESSED = 4
-            };
+            /// \brief
+            /// The packet is encrypted.
+            static const util::ui8 FLAGS_ENCRYPTED = 1;
+            /// \brief
+            /// A \see{Session::Header} follows the random vector.
+            static const util::ui8 FLAGS_SESSION_HEADER = 2;
+            /// \brief
+            /// \see{Packet} payload is compressed.
+            static const util::ui8 FLAGS_COMPRESSED = 4;
             /// \brief
             /// \see{Packet} flags.
             util::ui8 flags;
 
-            enum {
-                /// \brief
-                /// PlaintextHeader serialized size.
-                SIZE = util::UI8_SIZE +
-                    util::UI8_SIZE
-            };
+            /// \brief
+            /// PlaintextHeader serialized size.
+            static const std::size_t SIZE = util::UI8_SIZE + util::UI8_SIZE;
 
             /// \brief
             /// ctor.

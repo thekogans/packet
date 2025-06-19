@@ -30,15 +30,9 @@ namespace thekogans {
         /// Forward declaration of PacketFilter.
         struct PacketFilter;
 
-        enum {
-            /// \brief
-            /// PacketFilterList list id.
-            PACKET_FILTER_LIST_ID
-        };
-
         /// \brief
-        /// Convenient typedef for util::IntrusiveList<PacketFilter, PACKET_FILTER_LIST_ID>.
-        typedef util::IntrusiveList<PacketFilter, PACKET_FILTER_LIST_ID> PacketFilterList;
+        /// Alias for util::IntrusiveList<PacketFilter>.
+        using PacketFilterList = util::IntrusiveList<PacketFilter>;
 
     #if defined (_MSC_VER)
         #pragma warning (push)

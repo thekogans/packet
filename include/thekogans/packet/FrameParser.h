@@ -159,11 +159,9 @@ namespace thekogans {
             };
 
         private:
-            enum {
-                /// \brief
-                /// Default max ciphertext length.
-                DEFAULT_MAX_CIPHERTEXT_LENGTH = 2 * 1024 * 1024
-            };
+            /// \brief
+            /// Default max ciphertext length.
+            static const std::size_t DEFAULT_MAX_CIPHERTEXT_LENGTH = 2 * 1024 * 1024;
             /// \brief
             /// Max ciphertext length allows us to protect ourselves from malicious actors.
             const std::size_t maxCiphertextLength;

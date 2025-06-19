@@ -52,12 +52,9 @@ namespace thekogans {
                 /// Will be compared to inboundSequenceNumber upon receipt.
                 util::ui64 sequenceNumber;
 
-                /// \enum
+                /// \brief
                 /// Header size.
-                enum {
-                    SIZE = util::GUID_SIZE +
-                        util::UI64_SIZE
-                };
+                static const std::size_t SIZE = util::GUID_SIZE + util::UI64_SIZE;
 
                 /// \brief
                 /// ctor.
@@ -92,13 +89,12 @@ namespace thekogans {
             /// Outbound \see{Packet} sequence number.
             util::ui64 outboundSequenceNumber;
 
-            /// \enum
+            /// \brief
             /// Session size.
-            enum {
-                SIZE = util::GUID_SIZE + // id
-                    util::UI64_SIZE + // inboundSequenceNumber
-                    util::UI64_SIZE // outboundSequenceNumber
-            };
+            static const std::size_t SIZE =
+                util::GUID_SIZE + // id
+                util::UI64_SIZE + // inboundSequenceNumber
+                util::UI64_SIZE;  // outboundSequenceNumber
 
             /// \brief
             /// ctor.

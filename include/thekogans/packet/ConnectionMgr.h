@@ -91,17 +91,15 @@ namespace thekogans {
             typedef std::list<Tunnel::SharedPtr> ConnectionList;
 
         private:
-            enum {
-                /// \brief
-                /// Default timer period.
-                DEFAULT_TIMER_PERIOD = 5,
-                /// \brief
-                /// Default max pending connection time.
-                DEFAULT_MAX_PENDING_CONNECTION_TIME = 25,
-                /// \brief
-                /// Default max connection idle time.
-                DEFAULT_MAX_CONNECTION_IDLE_TIME = 10
-            };
+            /// \brief
+            /// Default timer period.
+            static const time_t DEFAULT_TIMER_PERIOD = 5;
+            /// \brief
+            /// Default max pending connection time.
+            static const time_t DEFAULT_MAX_PENDING_CONNECTION_TIME = 25;
+            /// \brief
+            /// Default max connection idle time.
+            static const time_t DEFAULT_MAX_CONNECTION_IDLE_TIME = 10;
             /// \brief
             /// Timer period.
             time_t timerPeriod;

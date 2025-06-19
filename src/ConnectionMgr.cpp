@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with libthekogans_packet. If not, see <http://www.gnu.org/licenses/>.
 
-#include <thekogans/util/LockGuard.h>
+#include "thekogans/util/LockGuard.h"
 #include "thekogans/packet/ConnectionMgr.h"
 
 namespace thekogans {

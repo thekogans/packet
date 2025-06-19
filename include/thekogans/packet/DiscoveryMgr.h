@@ -92,14 +92,12 @@ namespace thekogans {
             /// \return true = the given \see{Discovery} method is enabled.
             bool IsDiscoveryEnabled (util::ui32 discovery);
 
-            enum {
-                /// \brief
-                /// Default number of discovery attempts.
-                DEFAULT_DISCOVERY_TRIES = 3,
-                /// \brief
-                /// Default timeout (in seconds) between attempts.
-                DEFAULT_DISCOVERY_TIMEOUT = 3
-            };
+            /// \brief
+            /// Default number of discovery attempts.
+            static const util::ui32 DEFAULT_DISCOVERY_TRIES = 3;
+            /// \brief
+            /// Default timeout (in seconds) between attempts.
+            static const util::i64 DEFAULT_DISCOVERY_TIMEOUT = 3;
 
             /// \brief
             /// Initiate discovery for a given device.
@@ -123,7 +121,8 @@ namespace thekogans {
             /// Given a pending or running discovery job, wait for it to complete.
             /// \param[in] discoveryJob Pending or running discovery job.
             /// \param[in] timeSpec How long to wait for it to complete.
-            /// \return true == Discovery job completed successfuly. false == discovery job was cancelled.
+            /// \return true == Discovery job completed successfuly.
+            /// false == discovery job was cancelled.
             bool WaitForDiscovery (
                 util::RunLoop::Job::SharedPtr discoveryJob,
                 const util::TimeSpec &timeSpec = util::TimeSpec::Infinite);

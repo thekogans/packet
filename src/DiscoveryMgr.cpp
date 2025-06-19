@@ -3,8 +3,8 @@
 // Created by Boris Kogan on 4/25/2016.
 // Copyright (c) 2016 Logitech, Inc. All rights reserved.
 
-#include <thekogans/util/GUID.h>
-#include <thekogans/stream/AsyncIoEventQueue.h>
+#include "thekogans/util/GUID.h"
+#include "thekogans/stream/AsyncIoEventQueue.h"
 #include "logitech/marconi/Device.h"
 #include "logitech/marconi/GlobalInfo.h"
 #include "logitech/marconi/Discovery.h"

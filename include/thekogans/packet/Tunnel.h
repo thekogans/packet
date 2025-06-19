@@ -58,7 +58,7 @@ namespace thekogans {
                 public util::Subscriber<stream::TCPSocketEvents>,
                 public FrameParser::PacketHandler {
             /// \brief
-            /// Convenient typedef for util::RefCounted::SharedPtr<Tunnel>.
+            /// Define Tunnel::SharedPtr and Tunnel::WeakPtr.
             THEKOGANS_UTIL_DECLARE_REF_COUNTED_POINTERS (Tunnel)
 
         private:

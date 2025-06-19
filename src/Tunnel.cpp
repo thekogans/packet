@@ -15,17 +15,17 @@
 // You should have received a copy of the GNU General Public License
 // along with libthekogans_packet. If not, see <http://www.gnu.org/licenses/>.
 
-#include <thekogans/util/Exception.h>
-#include <thekogans/util/LoggerMgr.h>
-#include <thekogans/util/StringUtils.h>
-#include <thekogans/util/LockGuard.h>
-#include <thekogans/crypto/EC.h>
-#include <thekogans/crypto/DH.h>
+#include "thekogans/util/Exception.h"
+#include "thekogans/util/LoggerMgr.h"
+#include "thekogans/util/StringUtils.h"
+#include "thekogans/util/LockGuard.h"
+#include "thekogans/crypto/EC.h"
+#include "thekogans/crypto/DH.h"
 #include "thekogans/packet/ClientHelloPacket.h"
 #include "thekogans/packet/ServerHelloPacket.h"
 #include "thekogans/packet/PromoteConnectionPacket.h"
-#include <thekogans/packet/ClientKeyExchangePacket.h>
-#include <thekogans/packet/ServerKeyExchangePacket.h>
+#include "thekogans/packet/ClientKeyExchangePacket.h"
+#include "thekogans/packet/ServerKeyExchangePacket.h"
 #include "thekogans/packet/DataPacket.h"
 #include "thekogans/packet/HeartbeatPacket.h"
 #include "thekogans/packet/Tunnel.h"
@@ -173,14 +173,14 @@ namespace thekogans {
             THEKOGANS_UTIL_TRY {
                 jobQueue.EnqJob (
                     [this, buffer] (
-                            const RunLoop::Job & /*job*/,
-                            const std::atomic<bool> & /*done*/) {
+                            const RunLoop::Job &job,
+                            const std::atomic<bool> &done) {
                         if (!job.ShouldStop (done)) {
                             THEKOGANS_UTIL_TRY {
                                 tunnel->parser.HandleBuffer (buffer, *tunnel);
                             }
                             THEKOGANS_UTIL_CATCH (util::Exception) {
-                                tunnel->OnStreamError (streqam, exception);
+                                tunnel->OnStreamError (stream, exception);
                             }
                         }
                     }
