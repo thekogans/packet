@@ -78,13 +78,13 @@ namespace thekogans {
                     PlaintextHeader::SIZE +
                     PlaintextHeader::MAX_RANDOM_LENGTH +
                     Session::Header::SIZE +
-                    util::Serializable::BinHeader (type, 0, maxPacketSize).Size ();
+                    util::Serializable::Header (type, 0, maxPacketSize).Size ();
             }
         };
 
         /// \brief
         /// Implement Packet::SharedPtr extraction operators.
-        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_PTR_EXTRACTION_OPERATORS (Packet)
+        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_EXTRACTION_OPERATORS (Packet)
 
     } // namespace packet
 
@@ -92,7 +92,7 @@ namespace thekogans {
 
         /// \brief
         /// Implement Packet::SharedPtr value parser.
-        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_PTR_VALUE_PARSER (packet::Packet)
+        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_VALUE_PARSER (packet::Packet)
 
     } // namespace util
 } // namespace thekogans

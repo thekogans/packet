@@ -55,14 +55,12 @@ namespace thekogans {
                 /// \enum
                 /// Header size.
                 enum {
-                    SIZE = util::GUID_SIZE +
-                        util::UI64_SIZE
+                    SIZE = util::GUID::SIZE + util::UI64_SIZE
                 };
 
                 /// \brief
                 /// ctor.
                 Header () :
-                    id (util::GUID::Empty),
                     sequenceNumber (0) {}
                 /// \brief
                 /// ctor.
@@ -95,7 +93,7 @@ namespace thekogans {
             /// \enum
             /// Session size.
             enum {
-                SIZE = util::GUID_SIZE + // id
+                SIZE = util::GUID::SIZE + // id
                     util::UI64_SIZE + // inboundSequenceNumber
                     util::UI64_SIZE // outboundSequenceNumber
             };

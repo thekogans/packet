@@ -100,7 +100,7 @@ namespace thekogans {
                 if (session == 0) {
                     THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
                         "Unable to verify session header (%s, " THEKOGANS_UTIL_UI64_FORMAT ").",
-                        sessionHeader.id.ToString ().c_str (),
+                        sessionHeader.id.ToHexString ().c_str (),
                         sessionHeader.sequenceNumber);
 
                 }
@@ -109,9 +109,9 @@ namespace thekogans {
                         "Invalid session header (%s, " THEKOGANS_UTIL_UI64_FORMAT ") "
                         "for sesson (%s, " THEKOGANS_UTIL_UI64_FORMAT ", " THEKOGANS_UTIL_UI64_FORMAT "), "
                         "possible replay attack.",
-                        sessionHeader.id.ToString ().c_str (),
+                        sessionHeader.id.ToHexString ().c_str (),
                         sessionHeader.sequenceNumber,
-                        session->id.ToString ().c_str (),
+                        session->id.ToHexString ().c_str (),
                         session->inboundSequenceNumber,
                         session->outboundSequenceNumber);
                 }
