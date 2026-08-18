@@ -52,8 +52,7 @@ namespace thekogans {
             ReassemblePacketFragmentsPacketFilter (
                 std::size_t maxCiphertextLength_,
                 util::Endianness endianness = util::NetworkEndian) :
-                maxCiphertextLength (maxCiphertextLength_),
-                packetFragmentBuffer (new util::Buffer (endianness)) {}
+                maxCiphertextLength (maxCiphertextLength_) {}
 
             /// \brief
             /// Called by \see{Tunnel}::HandlePacket to reassemble \see{PacketFragmentPacket}.

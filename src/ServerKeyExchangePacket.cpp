@@ -15,15 +15,20 @@
 // You should have received a copy of the GNU General Public License
 // along with libthekogans_packet. If not, see <http://www.gnu.org/licenses/>.
 
+#include "thekogans/util/SerializableHeader.h"
 #include "thekogans/packet/ServerKeyExchangePacket.h"
 
 namespace thekogans {
     namespace packet {
 
-        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE (ServerKeyExchangePacket, 1)
+        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE (
+            thekogans::packet::ServerKeyExchangePacket,
+            1,
+            0,
+            Packet::TYPE)
 
         void ServerKeyExchangePacket::Read (
-                const BinHeader & /*header*/,
+                const util::SerializableHeader & /*header*/,
                 util::Serializer &serializer) {
             serializer >> cipherSuite >> params;
         }
@@ -35,28 +40,28 @@ namespace thekogans {
         const char * const ServerKeyExchangePacket::ATTR_CIPHER_SUITE = "CipherSuite";
         const char * const ServerKeyExchangePacket::TAG_PARAMS = "Params";
 
-        void ServerKeyExchangePacket::Read (
-                const TextHeader & /*header*/,
+        void ServerKeyExchangePacket::ReadXML (
+                const util::SerializableHeader & /*header*/,
                 const pugi::xml_node &node) {
             cipherSuite = node.attribute (ATTR_CIPHER_SUITE).value ();
             pugi::xml_node paramsNode = node.child (TAG_PARAMS);
             paramsNode >> params;
         }
 
-        void ServerKeyExchangePacket::Write (pugi::xml_node &node) const {
+        void ServerKeyExchangePacket::WriteXML (pugi::xml_node &node) const {
             node.append_attribute (ATTR_CIPHER_SUITE).set_value (cipherSuite.c_str ());
             pugi::xml_node paramsNode = node.append_child (TAG_PARAMS);
             paramsNode << *params;
         }
 
-        void ServerKeyExchangePacket::Read (
-                const TextHeader & /*header*/,
+        void ServerKeyExchangePacket::ReadJSON (
+                const util::SerializableHeader & /*header*/,
                 const util::JSON::Object &object) {
             // FIXME: implement
             assert (0);
         }
 
-        void ServerKeyExchangePacket::Write (util::JSON::Object &object) const {
+        void ServerKeyExchangePacket::WriteJSON (util::JSON::Object &object) const {
             // FIXME: implement
             assert (0);
         }

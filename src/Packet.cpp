@@ -63,11 +63,12 @@ namespace thekogans {
                     plaintext << session->GetOutboundHeader ();
                 }
                 if (compress) {
-                    util::Buffer buffer (util::NetworkEndian, GetSize ());
+                    util::NetworkBuffer buffer (GetSize ());
                     buffer << *this;
                     util::Buffer::SharedPtr deflated = buffer.Deflate ();
                     plaintext.Write (
-                        deflated->GetReadPtr (), deflated->GetDataAvailableForReading ());
+                        deflated->GetDataPtr (),
+                        deflated->GetDataAvailableForReading ());
                 }
                 else {
                     plaintext << *this;
@@ -93,14 +94,13 @@ namespace thekogans {
             PlaintextHeader plaintextHeader;
             *plaintext >> plaintextHeader;
             plaintext->AdvanceReadOffset (plaintextHeader.randomLength);
-            if (util::Flags8 (plaintextHeader.flags).Test (
-                    PlaintextHeader::FLAGS_SESSION_HEADER)) {
+            if (util::Flags8 (plaintextHeader.flags).Test (PlaintextHeader::FLAGS_SESSION_HEADER)) {
                 Session::Header sessionHeader;
                 *plaintext >> sessionHeader;
                 if (session == 0) {
                     THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
                         "Unable to verify session header (%s, " THEKOGANS_UTIL_UI64_FORMAT ").",
-                        sessionHeader.id.ToString ().c_str (),
+                        sessionHeader.id.ToHexString ().c_str (),
                         sessionHeader.sequenceNumber);
 
                 }
@@ -109,15 +109,14 @@ namespace thekogans {
                         "Invalid session header (%s, " THEKOGANS_UTIL_UI64_FORMAT ") "
                         "for sesson (%s, " THEKOGANS_UTIL_UI64_FORMAT ", " THEKOGANS_UTIL_UI64_FORMAT "), "
                         "possible replay attack.",
-                        sessionHeader.id.ToString ().c_str (),
+                        sessionHeader.id.ToHexString ().c_str (),
                         sessionHeader.sequenceNumber,
-                        session->id.ToString ().c_str (),
+                        session->id.ToHexString ().c_str (),
                         session->inboundSequenceNumber,
                         session->outboundSequenceNumber);
                 }
             }
-            if (util::Flags8 (plaintextHeader.flags).Test (
-                    PlaintextHeader::FLAGS_COMPRESSED)) {
+            if (plaintextHeader.flags & PlaintextHeader::FLAGS_COMPRESSED) {
                 plaintext = plaintext->Inflate ();
             }
             Packet::SharedPtr packet;

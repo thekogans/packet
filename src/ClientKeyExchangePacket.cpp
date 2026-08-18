@@ -20,10 +20,14 @@
 namespace thekogans {
     namespace packet {
 
-        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE (ClientKeyExchangePacket, 1)
+        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE (
+            thekogans::packet::ClientKeyExchangePacket,
+            1,
+            0,
+            Packet::TYPE)
 
         void ClientKeyExchangePacket::Read (
-                const BinHeader & /*header*/,
+                const util::SerializableHeader & /*header*/,
                 util::Serializer &serializer) {
             serializer >> cipherSuite >> params;
         }
@@ -35,28 +39,28 @@ namespace thekogans {
         const char * const ClientKeyExchangePacket::ATTR_CIPHER_SUITE = "CipherSuite";
         const char * const ClientKeyExchangePacket::TAG_PARAMS = "Params";
 
-        void ClientKeyExchangePacket::Read (
-                const TextHeader & /*header*/,
+        void ClientKeyExchangePacket::ReadXML (
+                const util::SerializableHeader & /*header*/,
                 const pugi::xml_node &node) {
             cipherSuite = node.attribute (ATTR_CIPHER_SUITE).value ();
             pugi::xml_node paramsNode = node.child (TAG_PARAMS);
             paramsNode >> params;
         }
 
-        void ClientKeyExchangePacket::Write (pugi::xml_node &node) const {
+        void ClientKeyExchangePacket::WriteXML (pugi::xml_node &node) const {
             node.append_attribute (ATTR_CIPHER_SUITE).set_value (cipherSuite.c_str ());
             pugi::xml_node paramsNode = node.append_child (TAG_PARAMS);
             paramsNode << *params;
         }
 
-        void ClientKeyExchangePacket::Read (
-                const TextHeader & /*header*/,
+        void ClientKeyExchangePacket::ReadJSON (
+                const util::SerializableHeader & /*header*/,
                 const util::JSON::Object & /*object*/) {
             // FIXME: implement
             assert (0);
         }
 
-        void ClientKeyExchangePacket::Write (util::JSON::Object & /*object*/) const {
+        void ClientKeyExchangePacket::WriteJSON (util::JSON::Object & /*object*/) const {
             // FIXME: implement
             assert (0);
         }

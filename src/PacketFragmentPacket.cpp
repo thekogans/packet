@@ -22,23 +22,27 @@
 namespace thekogans {
     namespace packet {
 
-        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE (PacketFragmentPacket, 1)
+        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE (
+            thekogans::packet::PacketFragmentPacket,
+            1,
+            0,
+            Packet::TYPE)
 
         void PacketFragmentPacket::Read (
-                const BinHeader & /*header*/,
+                const util::SerializableHeader & /*header*/,
                 util::Serializer &serializer) {
-            serializer >> fragmentNumber >> fragmentCount >> *fragment;
+            serializer >> fragmentNumber >> fragmentCount >> fragment;
         }
 
         void PacketFragmentPacket::Write (util::Serializer &serializer) const {
-            serializer << fragmentNumber << fragmentCount << fragment;
+            serializer << fragmentNumber << fragmentCount << *fragment;
         }
 
         const char * const PacketFragmentPacket::ATTR_FRAGMENT_NUMBER = "FragmentNumber";
         const char * const PacketFragmentPacket::ATTR_FRAGMENT_COUNT = "FragmentCount";
 
-        void PacketFragmentPacket::Read (
-                const TextHeader & /*header*/,
+        void PacketFragmentPacket::ReadXML (
+                const util::SerializableHeader & /*header*/,
                 const pugi::xml_node &node) {
             fragmentNumber = util::stringToui64 (node.attribute (ATTR_FRAGMENT_NUMBER).value ());
             fragmentCount = util::stringToui64 (node.attribute (ATTR_FRAGMENT_COUNT).value ());
@@ -46,25 +50,23 @@ namespace thekogans {
             fragment = util::Base64::Decode (encodedFragment, strlen (encodedFragment));
         }
 
-        void PacketFragmentPacket::Write (pugi::xml_node &node) const {
-            node.append_attribute (ATTR_FRAGMENT_NUMBER).set_value (
-                util::ui64Tostring (fragmentNumber).c_str ());
-            node.append_attribute (ATTR_FRAGMENT_COUNT).set_value (
-                util::ui64Tostring (fragmentCount).c_str ());
+        void PacketFragmentPacket::WriteXML (pugi::xml_node &node) const {
+            node.append_attribute (ATTR_FRAGMENT_NUMBER).set_value (util::ui64Tostring (fragmentNumber).c_str ());
+            node.append_attribute (ATTR_FRAGMENT_COUNT).set_value (util::ui64Tostring (fragmentCount).c_str ());
             node.append_child (pugi::node_pcdata).set_value (
                 util::Base64::Encode (
                     fragment->GetReadPtr (),
                     fragment->GetDataAvailableForReading ())->Tostring ().c_str ());
         }
 
-        void PacketFragmentPacket::Read (
-                const TextHeader & /*header*/,
+        void PacketFragmentPacket::ReadJSON (
+                const util::SerializableHeader & /*header*/,
                 const util::JSON::Object & /*object*/) {
             // FIXME: implement
             assert (0);
         }
 
-        void PacketFragmentPacket::Write (util::JSON::Object & /*object*/) const {
+        void PacketFragmentPacket::WriteJSON (util::JSON::Object & /*object*/) const {
             // FIXME: implement
             assert (0);
         }

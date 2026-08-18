@@ -19,6 +19,7 @@
 #define __thekogans_packet_Packet_h
 
 #include "thekogans/util/Types.h"
+#include "thekogans/util/SerializableHeader.h"
 #include "thekogans/util/Serializable.h"
 #include "thekogans/util/Buffer.h"
 #include "thekogans/crypto/Cipher.h"
@@ -78,13 +79,13 @@ namespace thekogans {
                     PlaintextHeader::SIZE +
                     PlaintextHeader::MAX_RANDOM_LENGTH +
                     Session::Header::SIZE +
-                    util::Serializable::BinHeader (type, 0, maxPacketSize).Size ();
+                    util::SerializableHeader (type, 0, maxPacketSize).Size ();
             }
         };
 
         /// \brief
         /// Implement Packet::SharedPtr extraction operators.
-        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_PTR_EXTRACTION_OPERATORS (Packet)
+        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_EXTRACTION_OPERATORS (Packet)
 
     } // namespace packet
 
@@ -92,7 +93,7 @@ namespace thekogans {
 
         /// \brief
         /// Implement Packet::SharedPtr value parser.
-        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_PTR_VALUE_PARSER (packet::Packet)
+        THEKOGANS_UTIL_IMPLEMENT_SERIALIZABLE_VALUE_PARSER (packet::Packet)
 
     } // namespace util
 } // namespace thekogans

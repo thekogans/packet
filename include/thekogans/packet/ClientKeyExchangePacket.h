@@ -63,8 +63,7 @@ namespace thekogans {
             ClientKeyExchangePacket (
                 const std::string &cipherSuite_ =
                     crypto::CipherSuite::Strongest.ToString (),
-                crypto::KeyExchange::Params::SharedPtr params_ =
-                    crypto::KeyExchange::Params::SharedPtr ()) :
+                crypto::KeyExchange::Params::SharedPtr params_ = nullptr) :
                 cipherSuite (cipherSuite_),
                 params (params_) {}
 
@@ -72,7 +71,7 @@ namespace thekogans {
             /// \brief
             /// Return serialized packet size.
             /// \return Serialized packet size.
-            virtual std::size_t Size () const override {
+            virtual std::size_t Size () const noexcept override {
                 return
                     util::Serializer::Size (cipherSuite) +
                     params->GetSize ();
@@ -83,7 +82,7 @@ namespace thekogans {
             /// \param[in] header Packet header.
             /// \param[in] serializer Packet contents.
             virtual void Read (
-                const BinHeader & /*header*/,
+                const util::SerializableHeader & /*header*/,
                 util::Serializer &serializer) override;
             /// \brief
             /// Serialize the packet.
@@ -100,28 +99,28 @@ namespace thekogans {
             /// \brief
             /// Read a Serializable from an XML DOM.
             /// \param[in] node XML DOM representation of a Serializable.
-            virtual void Read (
-                const TextHeader & /*header*/,
+            virtual void ReadXML (
+                const util::SerializableHeader & /*header*/,
                 const pugi::xml_node &node) override;
             /// \brief
             /// Write a Serializable to the XML DOM.
             /// \param[out] node Parent node.
-            virtual void Write (pugi::xml_node &node) const override;
+            virtual void WriteXML (pugi::xml_node &node) const override;
 
             /// \brief
             /// Read a Serializable from an JSON DOM.
             /// \param[in] node JSON DOM representation of a Serializable.
-            virtual void Read (
-                const TextHeader & /*header*/,
+            virtual void ReadJSON (
+                const util::SerializableHeader & /*header*/,
                 const util::JSON::Object &object) override;
             /// \brief
             /// Write a Serializable to the JSON DOM.
             /// \param[out] node Parent node.
-            virtual void Write (util::JSON::Object &object) const override;
+            virtual void WriteJSON (util::JSON::Object &object) const override;
 
             /// \brief
             /// ClientKeyExchangePacket is neither copy constructable nor assignable.
-            THEKOGANS_UTIL_DISALLOW_COPY_AND_ASSIGN (ClientKeyExchangePacket)
+            THEKOGANS_PACKET_DISALLOW_COPY_AND_ASSIGN (ClientKeyExchangePacket)
         };
 
     } // namespace packet

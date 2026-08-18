@@ -21,8 +21,7 @@
 namespace thekogans {
     namespace packet {
 
-        Packet::SharedPtr ReassemblePacketFragmentsPacketFilter::FilterPacket (
-                Packet::SharedPtr packet) {
+        Packet::SharedPtr ReassemblePacketFragmentsPacketFilter::FilterPacket (Packet::SharedPtr packet) {
             if (packet.Get () != 0) {
                 if (packet->Type () == PacketFragmentPacket::TYPE) {
                     PacketFragmentPacket *packetFragment =
@@ -30,8 +29,8 @@ namespace thekogans {
                     // reassemble the fragmented packet.
                     if (packetFragment->fragmentCount > 1) {
                         if (packetFragment->fragmentNumber == 1) {
-                            packetFragmentBuffer->Resize (
-                                packetFragment->fragmentCount * maxCiphertextLength);
+                            packetFragmentBuffer.Reset (
+                                new util::NetworkBuffer (packetFragment->fragmentCount * maxCiphertextLength));
                         }
                         packetFragmentBuffer->Write (
                             packetFragment->fragment->GetReadPtr (),
